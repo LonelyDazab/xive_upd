@@ -1,4 +1,5 @@
 //made by: VeroXCode | LetsBeastHunter | Maxi | Dazab
+
 var ctx = com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
 var Button = android.widget.Button;
 var LinearLayout = android.widget.LinearLayout;
