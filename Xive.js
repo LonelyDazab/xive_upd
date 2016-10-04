@@ -1,5 +1,4 @@
 //made by: VeroXCode | LetsBeastHunter | Maxi | Dazab
-
 var ctx = com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
 var Button = android.widget.Button;
 var LinearLayout = android.widget.LinearLayout;
@@ -133,6 +132,8 @@ var spammes = Client;
 var multijump = false;
 var longjump = false;
 var jumpboost = 1.05;
+
+var spamb = false;
 
 var ported = false;
 
@@ -1091,6 +1092,43 @@ var spn = new CheckBox(ctx);
       
       
       
+      
+                        var spau = new TextView(ctx);
+		spau.setText(stripe);
+		spau.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+		ai1s.setTextSize(16);
+		spau.setGravity(Gravity.CENTER);
+  screen.addView(spau);
+  
+  
+  
+  var spau = new TextView(ctx);
+		spau.setText("Spam");
+		spau.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+		spau.setTextSize(16);
+		spau.setGravity(Gravity.CENTER);
+  screen.addView(spau);
+  
+  
+  
+  var spam2 = new CheckBox(ctx);
+  spam2.setText("bypass");
+  spam2.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+  spam2.setChecked(spamb);
+  spam2.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
+      onCheckedChanged: function(){
+      if(!spamb){
+      spamb = true;
+      }else{
+      spamb = false;
+      }
+      spam1.setChecked(spamb);
+      }
+      }));
+      screen.addView(spam1);
+      
+      
+      
   
   
       
@@ -1145,7 +1183,11 @@ if(spamtime != 0) {
 spamtime--;
 }else {
 spamtime = spamspeed;
+if(spamb == true) {
 Server.sendChat(state+"*"+spammes+"*"+state);
+}else {
+Server.sendChat(spammes);
+}
 state += 1;
 }
 }
