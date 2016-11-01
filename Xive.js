@@ -16,19 +16,32 @@ var ColorDrawable = android.graphics.drawable.ColorDrawable;
 var Color = android.graphics.Color;
 var Gravity = android.view.Gravity;
 var bg = new android.graphics.drawable.GradientDrawable();
-bg.setColor(android.graphics.Color.BLACK);
-bg.setStroke(4, android.graphics.Color.WHITE);
-bg.setCornerRadius(40); 
+bg.setColor(android.graphics.Color.BLACK); 
 var bg2 = new android.graphics.drawable.GradientDrawable(); //Für Buttons
 bg2.setColor(android.graphics.Color.BLACK);
+
+var bg3 = new android.graphics.drawable.GradientDrawable(); //Für Acktivierte Buttons
+bg3.setColor(android.graphics.Color.GREEN);
 
 var Team = "Xive - Client Team";
 var time = 18;
 var time2 = 10;
-var stripe = "----------------";
+var stripe = "---";
 var gravity = -0.07840000092983246;
 var Client = "§7[§aXive§7] ";
 var friends = new Array();
+var playerDir = [0, 0, 0];
+var DEG_TO_RAD = Math.PI / 180;
+var pS = 0.2;
+
+var Scroll1 = null;
+
+var Scroll2 = null;
+var Scroll3 = null;
+var Scroll4 = null;
+var Scroll5 = null;
+var Scroll6 = null;
+var Scroll7 = null;
 
 var bypsed = false;
 var bpasssw = false;
@@ -62,6 +75,7 @@ var motionct = 1.0;
 var jumpct = false;
 var jumpct1 = true;
 var groundct = true;
+var ctyport = false;
 
 var eaet = false;
 var uspe = 2;
@@ -85,8 +99,13 @@ var naimed = true;
 var raim = false;
 var raimed = false;
 
+var escap = false;
+
 var mobaimed = true;
 var playaimed = true;
+
+var mobported = true;
+var playported = true;
 
 var towed = false;
 var tower = false;
@@ -120,8 +139,8 @@ var aimlen = 0;
 var steped = false;
 var step = false;
 
-var laimed = false;
-var lockaim = false;
+var baimed = false;
+var antibot = false;
 
 var spammer = false;
 var spamtime = 3*20;
@@ -133,11 +152,21 @@ var multijump = false;
 var longjump = false;
 var jumpboost = 1.05;
 
+var fastladder = false;
+var climbspeed = 0.4;
+
 var spamb = false;
 
 var ported = false;
+var ported2 = false;
+var playerport = false;
+var portrange = 20;
 
-var menuScroll = null;
+var safewalk = false;
+
+var scaffold = false;
+
+
 
 var Utils = {
 
@@ -270,7 +299,8 @@ Block: {
 						return false;
 								
 	     },
-    
+	     
+	     
       nextEnt: function() {
 var mobs = Entity.getAll();
 							var players = Server.getAllPlayers();
@@ -323,6 +353,70 @@ if(playaimed == true) {	if(Utils.Friends.isFriend(ent)) {
 							
 							},
 							
+							nextPort: function() {
+var mobs = Entity.getAll();
+							var players = Server.getAllPlayers();
+							var small = portrange;
+							var ent = null;
+							for (var i = 0; i < mobs.length; i++) {
+								var x = Entity.getX(mobs[i]) - getPlayerX();
+								var y = Entity.getY(mobs[i]) - getPlayerY();
+								var z = Entity.getZ(mobs[i]) - getPlayerZ();
+								var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));
+								if(dist < small && dist > 0 && Entity.getEntityTypeId(mobs[i]) <= 63 && Entity.getHealth(mobs[i]) >= 1){
+							
+							
+if(mobported == true) {	if(Utils.Friends.isFriend(ent)) {
+									small = dist;
+						     ent = mobs[i]
+						    }else {
+									continue;
+									}
+						     }
+							}
+							}
+							
+		
+							
+							for (var i = 0; i < players.length; i++) {
+								var x = Entity.getX(players[i]) - getPlayerX();
+								var y = Entity.getY(players[i]) - getPlayerY();
+								var z = Entity.getZ(players[i]) - getPlayerZ();
+								var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));
+								if(dist < small && dist > 0 && Entity.getHealth(players[i]) >= 1){
+						
+						
+if(playported == true) {	if(Utils.Friends.isFriend(ent)) {
+									small = dist;
+									ent = players[i];
+
+									}else {
+									continue;
+									}
+									}
+									
+								}
+							}
+							
+							if(Utils.Friends.isFriend(ent)) {
+							return ent;
+							
+							}
+							
+							},
+							
+							isGround: function(ent) {
+			for(i = 0;i < ent.length;i++) {
+			var y = Entity.getY(ent[i]);
+			while (y > 1) y -= 1;
+
+			if (Math.round(y * 100) == 62 && getTile(Entity.getX(ent[i]), Entity.getY(ent[i]) - 1.65, Entity.getZ(ent[i])) != 0 && !Utils.Block.isLiquid(getTile(Entity.getX(ent[i]), Entity.getY(ent[i]) - 1.65, Entity.getZ(ent[i])))) return true;
+			if (Math.round(y * 100) == 12 && getTile(Entity.getX(ent[i]), Entity.getY(ent[i]) - 1.65, Entity.getZ(ent[i])) != 0 && !Utils.Block.isLiquid(getTile(Entity.getX(ent[i]), Entity.getY(ent[i]) - 1.65, Entity.getZ(ent[i])))) return true;
+			return false;
+			}
+		},
+							
+							
 						aimAtEnt: function(ent) {
 							if(ent != null){
 								var x = Entity.getX(ent) - getPlayerX();
@@ -343,6 +437,33 @@ if(playaimed == true) {	if(Utils.Friends.isFriend(ent)) {
 								}
        }
    
+   },
+   
+   doAimAtEnt: function(ent) {
+							if(ent != null){
+								var x = Entity.getX(ent) - getPlayerX();
+								var y = Entity.getY(ent) - getPlayerY();
+								var z = Entity.getZ(ent) - getPlayerZ();
+								if(Entity.getEntityTypeId(ent) != 63)
+									y += 0.5;
+								var a = 0.5 + Entity.getX(ent);
+								var b = Entity.getY(ent);
+								var c = 0.5 + Entity.getZ(ent);
+								var len = Math.sqrt(x * x + y * y + z * z);
+								var y = y / len;
+								var pitch = Math.asin(y);
+								pitch = pitch * 180.0 / Math.PI;
+								pitch = -pitch;
+								if(pitch > 0) {
+								pitch = pitch + pitch*2;
+								}else if(pitch < 0) {
+								pitch = pitch - pitch*2;
+								}
+								if (pitch < 90 && pitch > -90) {										
+									Entity.setRot(Player.getEntity(), -Math.atan2(a - (Player.getX() + 0.5), c - (Player.getZ() + 0.5)) * (180 / Math.PI)-180, 0);
+								}
+       }
+   
    }
    
    },
@@ -358,6 +479,35 @@ if(playaimed == true) {	if(Utils.Friends.isFriend(ent)) {
 }
 
 
+function clearGui() {
+if(Scroll2 != null) {
+Scroll2 = null;
+movep.dismiss();
+}
+
+if(Scroll3 != null) {
+Scroll3 = null;
+comep.dismiss();
+}
+
+if(Scroll4 != null) {
+Scroll4 = null;
+plaep.dismiss();
+}
+
+if(Scroll5 != null) {
+Scroll5 = null;
+worep.dismiss();
+}
+if(Scroll6 != null) {
+Scroll6 = null;
+otep.dismiss();
+}
+if(Scroll7 != null) {
+Scroll7 = null;
+setep.dismiss();
+}
+}
 
 function dip2px(dips){
 	return Math.ceil(dips * ctx.getResources().getDisplayMetrics().density);
@@ -373,9 +523,11 @@ ctx.runOnUiThread(new Runnable({ run: function(){
 		menuBtn.getBackground().setAlpha(100);
 		menuBtn.setOnClickListener(new View.OnClickListener({
 			onClick: function(viewarg){
-			if(menuScroll == null) {
+			if(Scroll1 == null) {
 				Hub();
-				Hubext();
+				}else {
+				menu.dismiss();
+						Scroll1 = null;
 				}
 			}
 		}));
@@ -389,447 +541,880 @@ ctx.runOnUiThread(new Runnable({ run: function(){
 		}
 	}}));
 	
-	function Hub(){
-	
-	
-	
-	ctx.runOnUiThread(new Runnable({ run: function(){
+function Hub() {
+ctx.runOnUiThread(new Runnable({ run: function(){
 		try{
 		
 		
 	var hub1 = new LinearLayout(ctx);
 	hub1.setOrientation(1);
-	menuScroll = new ScrollView(ctx);
+	Scroll1 = new ScrollView(ctx);
 	
 	var hub2 = new LinearLayout(ctx);
 	hub2.setOrientation(1);
 	
-	menuScroll.addView(hub1);
-	hub2.addView(menuScroll);
+	Scroll1.addView(hub1);
+	hub2.addView(Scroll1);
 	hub2.setBackground(bg);
 	hub2.getBackground().setAlpha(100);
 	
-	var name = new TextView(ctx);
-			name.setTextSize(22);
-			name.setText("Xive");
-			name.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-			name.setGravity(Gravity.CENTER);
-			hub1.addView(name);
-			
-      var sett = new Button(ctx);
-			sett.setText("Settings");
-			sett.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-			sett.setPadding(25, 2, 2, 2);
-			sett.setBackground(bg2);
-			sett.getBackground().setAlpha(100);
-			sett.setOnClickListener(new View.OnClickListener({
+	var mov = new Button(ctx);
+			mov.setText("Movement");
+			mov.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			mov.setPadding(25, 2, 2, 2);
+			mov.setBackground(bg2);
+			mov.getBackground().setAlpha(100);
+			mov.setOnClickListener(new View.OnClickListener({
 				onClick: function(viewarg){
-						settingWindow();
-						settingExit();
-						menu.dismiss();
-						exitUI.dismiss();
-						menuScroll = null;
+					clearGui();
+						if(Scroll2 == null) {
+						movGui();
+						}
 					}
 			}));
-			hub1.addView(sett);
+			hub1.addView(mov);
 			
 			
-			var info = new Button(ctx);
-			info.setText("Info");
-			info.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-			info.setPadding(25, 2, 2, 2);
-			info.setBackground(bg2);
-			info.getBackground().setAlpha(100);
-			info.setOnClickListener(new View.OnClickListener({
+	var com = new Button(ctx);
+			com.setText("combat");
+			com.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			com.setPadding(25, 2, 2, 2);
+			com.setBackground(bg2);
+			com.getBackground().setAlpha(100);
+			com.setOnClickListener(new View.OnClickListener({
 				onClick: function(viewarg){
-				clientMessage(Client+"§aChangelog:");
-				clientMessage(Client+"§aadded Custom-Speed + Settings");
-				clientMessage(Client+"§aadded Step");
-				clientMessage(Client+"§aadded FriendSystem");
-				clientMessage(Client+"§aadded more Settings");
-				clientMessage(Client+"§aadded Teleport");
-				clientMessage(" ");
-				clientMessage(Client+"§aType .help for Commands");
+						clearGui();
+						if(Scroll3 == null) {
+						comGui();
+						}
 					}
 			}));
-			hub1.addView(info);
-				
-      
-      sp = new Switch(ctx);
-			sp.setText("Speed");
-			sp.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-    sp.setPadding(10, 1, 1, 1);
-    sp.setTextSize(14);
-			sp.setChecked(sped);
-			sp.setOnClickListener(new View.OnClickListener({
-				onClick: function(viewarg){
-					if(!sped){
-						sped = true;
-					}else{
-					ModPE.setGameSpeed(20);
-						sped = false;
-					}
-				 sp.setChecked(sped);
-				}
-			}));
-			hub1.addView(sp);
+			hub1.addView(com);
 			
-			
-			      eat = new Switch(ctx);
-			eat.setText("FastEat");
-			eat.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-    eat.setPadding(10, 1, 1, 1);
-    eat.setTextSize(14);
-			eat.setChecked(eaet);
-			eat.setOnClickListener(new View.OnClickListener({
-				onClick: function(viewarg){
-					if(!eaet){
-						eaet = true;
-						fastEatOn(256);
-					}else{
-						eaet = false;
-						fastEatOff(256);
-					}
-				 eat.setChecked(eaet);
-				}
-			}));
-			hub1.addView(eat);
-			
-      
-			
-						      nnock = new Switch(ctx);
-			nnock.setText("NoKnockback");
-			nnock.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-    nnock.setPadding(10, 1, 1, 1);
-    nnock.setTextSize(14);
-			nnock.setChecked(non);
-			nnock.setOnClickListener(new View.OnClickListener({
-				onClick: function(viewarg){
-					if(!non){
-						non = true;
-						nock = true;
-					}else{
-						non = false;
-						nock = false;
-					}
-				 nnock.setChecked(non);
-				}
-			}));
-			hub1.addView(nnock);
-			
-			bf = new Switch(ctx);
-			bf.setText("BounceFly");
-			bf.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-    bf.setPadding(10, 1, 1, 1);
-    bf.setTextSize(14);
-			bf.setChecked(bfed);
-			bf.setOnClickListener(new View.OnClickListener({
-				onClick: function(viewarg){
-					if(!bfed){
-						bfed = true;
-						bouncefly = true;
-					}else{
-						bfed = false;
-						bouncefly = false;
-					}
-				 bf.setChecked(bfed);
-				}
-			}));
-			hub1.addView(bf);
-      
-			gm = new Switch(ctx);
-			gm.setText("Creative");
-			gm.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-    gm.setPadding(10, 1, 1, 1);
-    gm.setTextSize(14);
-			gm.setChecked(gmed);
-			gm.setOnClickListener(new View.OnClickListener({
-				onClick: function(viewarg){
-					if(!gmed){
-						gmed = true;
-						Level.setGameMode(1);
-					}else{
-						gmed = false;
-						Level.setGameMode(0);
-					}
-				 gm.setChecked(gmed);
-				}
-			}));
-			hub1.addView(gm);
-			
-			
-			ai = new Switch(ctx);
-			ai.setText("AimAura");
-			ai.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-    ai.setPadding(10, 1, 1, 1);
-    ai.setTextSize(14);
-			ai.setChecked(aimed);
-			ai.setOnClickListener(new View.OnClickListener({
-				onClick: function(viewarg){
-					if(!aimed){
-						aimed = true;
-						aim = true;
-					}else{
-						aimed = false;
-						aim = false;
-					}
-				 ai.setChecked(aimed);
-				}
-			}));
-			hub1.addView(ai);
-			
-			var tow = new Switch(ctx);
-      tow.setText("Tower");
-      tow.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      tow.setPadding(10, 1, 1, 1);
-      tow.setTextSize(14);
-      tow.setChecked(towed);
-      tow.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!towed){
-      towed = true;
-      tower = true;
-      }else{
-      towed = false;
-      tower = false;
-      }
-      tow.setChecked(towed);
-      }
-      }));
-      hub1.addView(tow);
-      
-  
-  			var ato = new Switch(ctx);
-      ato.setText("autoSword");
-      ato.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      ato.setPadding(10, 1, 1, 1);
-      ato.setTextSize(14);
-      ato.setChecked(autosed);
-      ato.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!autosed){
-      autosed = true;
-      autos = true;
-      }else{
-      autosed = false;
-      autos = false;
-      }
-      ato.setChecked(autosed);
-      }
-      }));
-      hub1.addView(ato);
-      
-      
-      
-        			var jeo = new Switch(ctx);
-      jeo.setText("Jesus");
-      jeo.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      jeo.setPadding(10, 1, 1, 1);
-      jeo.setTextSize(14);
-      jeo.setChecked(jesused);
-      jeo.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!jesused){
-      jesused = true;
-      jesus = true;
-      }else{
-      jesused = false;
-      jesus = false;
-      }
-      jeo.setChecked(jesused);
-      }
-      }));
-      hub1.addView(jeo);
-      
-      var gld = new Switch(ctx);
-      gld.setText("Glide");
-      gld.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      gld.setPadding(10, 1, 1, 1);
-      gld.setTextSize(14);
-      gld.setChecked(glded);
-      gld.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!glded){
-      glded = true;
-      glide = true;
-      }else{
-      glded = false;
-      glide = false;
-      }
-      gld.setChecked(glded);
-      }
-      }));
-      hub1.addView(gld);
-      
-      
-      	         var pets = new Switch(ctx);
-      pets.setText("Step");
-      pets.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      pets.setPadding(10, 1, 1, 1);
-      pets.setTextSize(14);
-      pets.setChecked(steped);
-      pets.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!steped){
-      steped = true;
-      step = true;
-      }else{
-      steped = false;
-      step = false;
-      }
-      pets.setChecked(steped);
-      }
-      }));
-      hub1.addView(pets);
-      
-      var tport = new Switch(ctx);
-      tport.setText("Teleport");
-      tport.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      tport.setPadding(10, 1, 1, 1);
-      tport.setTextSize(14);
-      tport.setChecked(ported);
-      tport.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!ported){
-      ported = true;
-      }else{
-      ported = false;
-      }
-      tport.setChecked(ported);
-      }
-      }));
-      hub1.addView(tport);
-      
-    var spam = new Switch(ctx);
-      spam.setText("Spammer");
-      spam.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      spam.setPadding(10, 1, 1, 1);
-      spam.setTextSize(14);
-      spam.setChecked(spammer);
-      spam.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!spammer){
-      spammer = true;
-      }else{
-      spammer = false;
-      }
-      spam.setChecked(spammer);
-      }
-      }));
-      hub1.addView(spam);
-      
-      var mjump = new Switch(ctx);
-      mjump.setText("DoubleJump");
-      mjump.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      mjump.setPadding(10, 1, 1, 1);
-      mjump.setTextSize(14);
-      mjump.setChecked(multijump);
-      mjump.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!multijump){
-      multijump = true;
-      }else{
-      multijump = false;
-      }
-      mjump.setChecked(multijump);
-      }
-      }));
-      hub1.addView(mjump);
-      
-      var ljump = new Switch(ctx);
-      ljump.setText("LongJump");
-      ljump.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-      ljump.setPadding(10, 1, 1, 1);
-      ljump.setTextSize(14);
-      ljump.setChecked(longjump);
-      ljump.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!longjump){
-      longjump = true;
-      }else{
-      longjump = false;
-      }
-      ljump.setChecked(longjump);
-      }
-      }));
-      hub1.addView(ljump);
 
-
+			var pla = new Button(ctx);
+			pla.setText("Player");
+			pla.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			pla.setPadding(25, 2, 2, 2);
+			pla.setBackground(bg2);
+			pla.getBackground().setAlpha(100);
+			pla.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+				clearGui();
+						if(Scroll4 == null) {
+						plaGui();
+						}
+					}
+			}));
+			hub1.addView(pla);
 			
-			menu = new PopupWindow(hub2, ctx.getWindowManager().getDefaultDisplay().getWidth()/2, ctx.getWindowManager().getDefaultDisplay().getHeight());
-			menu.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.TOP, 0, 0);
-			}catch(error){
+						
+						var wor = new Button(ctx);
+			wor.setText("World");
+			wor.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			wor.setPadding(25, 2, 2, 2);
+			wor.setBackground(bg2);
+			wor.getBackground().setAlpha(100);
+			wor.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+				clearGui();
+						if(Scroll5 == null) {
+						worGui();
+						}
+					}
+			}));
+			hub1.addView(wor);
+		
+		var ot = new Button(ctx);
+			ot.setText("Other");
+			ot.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ot.setPadding(25, 2, 2, 2);
+			ot.setBackground(bg2);
+			ot.getBackground().setAlpha(100);
+			ot.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+				clearGui();
+						if(Scroll6 == null) {
+						otGui();
+						}
+					}
+			}));
+			hub1.addView(ot);
+						
+			var setti = new Button(ctx);
+			setti.setText("Settings");
+			setti.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			setti.setPadding(25, 2, 2, 2);
+			setti.setBackground(bg2);
+			setti.getBackground().setAlpha(100);
+			setti.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+				clearGui();
+						if(Scroll7 == null) {
+						setGui();
+						}
+					}
+			}));
+			hub1.addView(setti);
+			
+			
+						
+	
+	menu = new PopupWindow(hub2, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			menu.showAtLocation(ctx.getWindow().getDecorView(), Gravity.LEFT | Gravity.CENTER, 0, 0);
+
+	}catch(error){
 				Toast.makeText(ctx, "An error occured: " + error, 1).show();
 			}
 	}}));
 }
 
-function Hubext(){
-	ctx.runOnUiThread(new Runnable({ run: function(){
-		try{
-			var xLayout = new LinearLayout(ctx);
-			var xButton = new Button(ctx);
-			xButton.setText('X');
-			xButton.setTextColor(Color.BLACK);
-			xButton.setOnClickListener(new View.OnClickListener({
-				onClick: function(viewarg){
-				if(menuScroll != null) {
-					exitUI.dismiss();
-					menu.dismiss();
-					menuScroll = null;
-					}
-				}
-			}));
-			xLayout.addView(xButton);
-			
-			exitUI = new PopupWindow(xLayout, dip2px(40), dip2px(40));
-			exitUI.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-			exitUI.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.BOTTOM, 0, 0);
-			}catch(exception){
-				Toast.makeText(ctx, exception, 1).show();
-			}
-	}}));
-}
-
-function settingWindow(){
+function movGui() {
 ctx.runOnUiThread(new Runnable({ run: function(){
 		try{
 		
 		
-		
-		var screen = new LinearLayout(ctx);
-		
-		screen.setOrientation(1);
-		var ScrollView2 = new ScrollView(ctx);
-		
-		var screen2 = new LinearLayout(ctx);
-		screen2.setOrientation(1);
+	var lmov1 = new LinearLayout(ctx);
+	lmov1.setOrientation(1);
+	Scroll2 = new ScrollView(ctx);
 	
-		ScrollView2.addView(screen);
-		screen2.addView(ScrollView2);
+	var lmov2 = new LinearLayout(ctx);
+	lmov2.setOrientation(1);
+	
+	Scroll2.addView(lmov1);
+	lmov2.addView(Scroll2);
+	lmov2.setBackground(bg);
+	lmov2.getBackground().setAlpha(100);
+
+var exitM = new Button(ctx);
+			exitM.setText("Exit");
+			exitM.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			exitM.setPadding(25, 2, 2, 2);
+			exitM.setBackground(bg2);
+			exitM.getBackground().setAlpha(100);
+			exitM.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						movep.dismiss();
+						Scroll2 = null;
+					}
+			}));
+			lmov1.addView(exitM);
+			
+			var sp = new Button(ctx);
+			sp.setText("Speed");
+			sp.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			sp.setPadding(25, 2, 2, 2);
+			if(sped == false) {
+			sp.setBackground(bg2);
+			}else {
+			sp.setBackground(bg3);
+			}
+			sp.getBackground().setAlpha(100);
+			sp.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(sped == false) {
+						sped = true
+						sp.setBackground(bg3);
+						}else {
+						ModPE.setGameSpeed(20);
+						sped = false;
+						sp.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(sp);
+			
+			var jeo = new Button(ctx);
+			jeo.setText("Jesus");
+			jeo.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			jeo.setPadding(25, 2, 2, 2);
+			if(jesus == false) {
+			jeo.setBackground(bg2);
+			}else {
+			jeo.setBackground(bg3);
+			}
+			jeo.getBackground().setAlpha(100);
+			jeo.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(jesus == false) {
+						jesus = true
+						jeo.setBackground(bg3);
+						}else {
+						jesus = false;
+						jeo.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(jeo);
+			
+			var gld = new Button(ctx);
+			gld.setText("Glide");
+			gld.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			gld.setPadding(25, 2, 2, 2);
+			if(glide == false) {
+			gld.setBackground(bg2);
+			}else {
+			gld.setBackground(bg3);
+			}
+			gld.getBackground().setAlpha(100);
+			gld.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(glide == false) {
+						glide = true
+						gld.setBackground(bg3);
+						}else {
+						glide = false;
+						gld.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(gld);
+			
+			var bf = new Button(ctx);
+			bf.setText("BounceFly");
+			bf.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			bf.setPadding(25, 2, 2, 2);
+			if(bouncefly == false) {
+			bf.setBackground(bg2);
+			}else {
+			bf.setBackground(bg3);
+			}
+			bf.getBackground().setAlpha(100);
+			bf.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(bouncefly == false) {
+						bouncefly = true
+						bf.setBackground(bg3);
+						}else {
+						bouncefly = false;
+						bf.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(bf);
+			
+			var mjump = new Button(ctx);
+			mjump.setText("DoubelJump");
+			mjump.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			mjump.setPadding(25, 2, 2, 2);
+			if(multijump == false) {
+			mjump.setBackground(bg2);
+			}else {
+			mjump.setBackground(bg3);
+			}
+			mjump.getBackground().setAlpha(100);
+			mjump.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(multijump == false) {
+						multijump = true
+						mjump.setBackground(bg3);
+						}else {
+						multijump = false;
+						mjump.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(mjump);
+			
+			var ljump = new Button(ctx);
+			ljump.setText("LongJump");
+			ljump.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ljump.setPadding(25, 2, 2, 2);
+			if(longjump == false) {
+			ljump.setBackground(bg2);
+			}else {
+			ljump.setBackground(bg3);
+			}
+			ljump.getBackground().setAlpha(100);
+			ljump.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(longjump == false) {
+						longjump = true
+						ljump.setBackground(bg3);
+						}else {
+						longjump = false;
+						ljump.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(ljump);
+			
+			var safe = new Button(ctx);
+			safe.setText("Safewalk");
+			safe.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			safe.setPadding(25, 2, 2, 2);
+			if(safewalk == false) {
+			safe.setBackground(bg2);
+			}else {
+			safe.setBackground(bg3);
+			}
+			safe.getBackground().setAlpha(100);
+			safe.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(safewalk == false) {
+						clientMessage(Client+"§aOnly working on Servers");
+      safewalk = true;
+						safe.setBackground(bg3);
+						}else {
+						safewalk = false;
+						safe.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(safe);
+			
+
+movep = new PopupWindow(lmov2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
+			movep.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+function comGui() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
 		
-		screen2.setBackground(bg);
 		
-		var settname = new TextView(ctx);
+	var lcom1 = new LinearLayout(ctx);
+	lcom1.setOrientation(1);
+	Scroll3 = new ScrollView(ctx);
+	
+	var lcom2 = new LinearLayout(ctx);
+	lcom2.setOrientation(1);
+	
+	Scroll3.addView(lcom1);
+	lcom2.addView(Scroll3);
+	lcom2.setBackground(bg);
+	lcom2.getBackground().setAlpha(100);
+	
+	
+	
+	
+	var exitC = new Button(ctx);
+			exitC.setText("Exit");
+			exitC.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			exitC.setPadding(25, 2, 2, 2);
+			exitC.setBackground(bg2);
+			exitC.getBackground().setAlpha(100);
+			exitC.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						comep.dismiss();
+						Scroll3 = null;
+					}
+			}));
+			lcom1.addView(exitC);
+			
+			var ai = new Button(ctx);
+			ai.setText("AimAura");
+			ai.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ai.setPadding(25, 2, 2, 2);
+			if(aim == false) {
+			ai.setBackground(bg2);
+			}else {
+			ai.setBackground(bg3);
+			}
+			ai.getBackground().setAlpha(100);
+			ai.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(aim == false) {
+						aim = true
+						ai.setBackground(bg3);
+						}else {
+						aim = false;
+						ai.setBackground(bg2);
+						}
+					}
+			}));
+			lcom1.addView(ai);
+			
+			
+			
+			var ato = new Button(ctx);
+			ato.setText("AutoSword");
+			ato.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ato.setPadding(25, 2, 2, 2);
+			if(autos == false) {
+			ato.setBackground(bg2);
+			}else {
+			ato.setBackground(bg3);
+			}
+			ato.getBackground().setAlpha(100);
+			ato.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(autos == false) {
+						autos = true
+						ato.setBackground(bg3);
+						}else {
+						autos = false;
+					ato.setBackground(bg2);
+						}
+					}
+			}));
+			lcom1.addView(ato);
+
+
+
+comep = new PopupWindow(lcom2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
+			comep.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+function plaGui() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var lpla1 = new LinearLayout(ctx);
+	lpla1.setOrientation(1);
+	Scroll4 = new ScrollView(ctx);
+	
+	var lpla2 = new LinearLayout(ctx);
+	lpla2.setOrientation(1);
+	
+	Scroll4.addView(lpla1);
+	lpla2.addView(Scroll4);
+	lpla2.setBackground(bg);
+	lpla2.getBackground().setAlpha(100);
+	
+	
+	var exitP = new Button(ctx);
+			exitP.setText("Exit");
+			exitP.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			exitP.setPadding(25, 2, 2, 2);
+			exitP.setBackground(bg2);
+			exitP.getBackground().setAlpha(100);
+			exitP.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						plaep.dismiss();
+						Scroll4 = null;
+					}
+			}));
+			lpla1.addView(exitP);
+			
+			var eat = new Button(ctx);
+			eat.setText("FastEat");
+			eat.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			eat.setPadding(25, 2, 2, 2);
+			if(eaet == false) {
+			eat.setBackground(bg2);
+			}else {
+			eat.setBackground(bg3);
+			}
+			eat.getBackground().setAlpha(100);
+			eat.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(eaet == false) {
+						eaet = true
+						fastEatOn(256);
+					eat.setBackground(bg3);
+						}else {
+						eaet = false;
+						fastEatOff(256);
+						eat.setBackground(bg2);
+						}
+					}
+			}));
+			lpla1.addView(eat);
+			
+			
+				var nnock = new Button(ctx);
+			nnock.setText("NoNock");
+			nnock.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			nnock.setPadding(25, 2, 2, 2);
+			if(nock == false) {
+			nnock.setBackground(bg2);
+			}else {
+			nnock.setBackground(bg3);
+			}
+			nnock.getBackground().setAlpha(100);
+			nnock.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(nock == false) {
+						nock = true
+					nnock.setBackground(bg3);
+						}else {
+						nock = false;
+						nnock.setBackground(bg2);
+						}
+					}
+			}));
+			lpla1.addView(nnock);
+			
+			
+			
+   var tport = new Button(ctx);
+			tport.setText("Teleport");
+			tport.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			tport.setPadding(25, 2, 2, 2);
+			if(ported == false) {
+			tport.setBackground(bg2);
+			}else {
+			tport.setBackground(bg3);
+			}
+			tport.getBackground().setAlpha(100);
+			tport.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(ported == false) {
+						ported = true
+					tport.setBackground(bg3);
+						}else {
+						ported = false;
+						tport.setBackground(bg2);
+						}
+					}
+			}));
+			lpla1.addView(tport);
+			
+			var esc = new Button(ctx);
+			esc.setText("Escape");
+			esc.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			esc.setPadding(25, 2, 2, 2);
+			if(escap == false) {
+			esc.setBackground(bg2);
+			}else {
+			esc.setBackground(bg3);
+			}
+			esc.getBackground().setAlpha(100);
+			esc.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(escap == false) {
+						escap = true
+					esc.setBackground(bg3);
+						}else {
+						escap = false;
+						esc.setBackground(bg2);
+						}
+					}
+			}));
+			lpla1.addView(esc);
+
+
+plaep = new PopupWindow(lpla2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
+			plaep.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+function worGui() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var lwor1 = new LinearLayout(ctx);
+	lwor1.setOrientation(1);
+	Scroll5 = new ScrollView(ctx);
+	
+	var lwor2 = new LinearLayout(ctx);
+	lwor2.setOrientation(1);
+	
+	Scroll5.addView(lwor1);
+	lwor2.addView(Scroll5);
+	lwor2.setBackground(bg);
+	lwor2.getBackground().setAlpha(100);
+	
+	
+	
+var exitW = new Button(ctx);
+			exitW.setText("Exit");
+			exitW.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			exitW.setPadding(25, 2, 2, 2);
+			exitW.setBackground(bg2);
+			exitW.getBackground().setAlpha(100);
+			exitW.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						worep.dismiss();
+						Scroll5 = null;
+					}
+			}));
+			lwor1.addView(exitW);
+			
+			
+			var gm = new Button(ctx);
+			gm.setText("Gamemode");
+			gm.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			gm.setPadding(25, 2, 2, 2);
+			if(gmed == false) {
+			gm.setBackground(bg2);
+			}else {
+			gm.setBackground(bg3);
+			}
+			gm.getBackground().setAlpha(100);
+			gm.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(gmed == false) {
+						gmed = true
+						Level.setGameMode(1);
+						gm.setBackground(bg3);
+						}else {
+						gmed = false;
+						Level.setGameMode(0);
+						gm.setBackground(bg2);
+						}
+					}
+			}));
+			lwor1.addView(gm);
+			
+			
+			var tow = new Button(ctx);
+			tow.setText("Tower");
+			tow.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			tow.setPadding(25, 2, 2, 2);
+			if(tower == false) {
+			tow.setBackground(bg2);
+			}else {
+			tow.setBackground(bg3);
+			}
+			tow.getBackground().setAlpha(100);
+			tow.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(tower == false) {
+						tower = true;
+						tow.setBackground(bg3);
+						}else {
+						tower = false;
+						tow.setBackground(bg2);
+						}
+					}
+			}));
+			lwor1.addView(tow);
+			
+			
+			var pets = new Button(ctx);
+			pets.setText("Step");
+			pets.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			pets.setPadding(25, 2, 2, 2);
+			if(step == false) {
+			pets.setBackground(bg2);
+			}else {
+			pets.setBackground(bg3);
+			}
+			pets.getBackground().setAlpha(100);
+			pets.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(step == false) {
+						step = true
+						pets.setBackground(bg3);
+						}else {
+						step = false;
+						pets.setBackground(bg2);
+						}
+					}
+			}));
+			lwor1.addView(pets);
+			
+			
+			var ladder = new Button(ctx);
+			ladder.setText("FastLadder");
+			ladder.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ladder.setPadding(25, 2, 2, 2);
+			if(fastladder == false) {
+			ladder.setBackground(bg2);
+			}else {
+			ladder.setBackground(bg3);
+			}
+			ladder.getBackground().setAlpha(100);
+			ladder.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(fastladder == false) {
+						fastladder = true
+						ladder.setBackground(bg3);
+						}else {
+						fastladder = false;
+						ladder.setBackground(bg2);
+						}
+					}
+			}));
+			lwor1.addView(ladder);
+
+    var scaff = new Button(ctx);
+			scaff.setText("Scaffold");
+			scaff.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			scaff.setPadding(25, 2, 2, 2);
+			if(scaffold == false) {
+			scaff.setBackground(bg2);
+			}else {
+			scaff.setBackground(bg3);
+			}
+			scaff.getBackground().setAlpha(100);
+			scaff.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(scaffold == false) {
+						clientMessage(Client+"§aYou can get kicked by Servers for Flying");
+      scaffold = true;
+						scaff.setBackground(bg3);
+						}else {
+						scaffold = false;
+						scaff.setBackground(bg2);
+						}
+					}
+			}));
+			lwor1.addView(scaff);
+
+
+worep = new PopupWindow(lwor2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
+			worep.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+function otGui() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var lot1 = new LinearLayout(ctx);
+	lot1.setOrientation(1);
+	Scroll6 = new ScrollView(ctx);
+	
+	var lot2 = new LinearLayout(ctx);
+	lot2.setOrientation(1);
+	
+	Scroll6.addView(lot1);
+	lot2.addView(Scroll6);
+	lot2.setBackground(bg);
+	lot2.getBackground().setAlpha(100);
+	
+	
+var exitO = new Button(ctx);
+			exitO.setText("Exit");
+			exitO.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			exitO.setPadding(25, 2, 2, 2);
+			exitO.setBackground(bg2);
+			exitO.getBackground().setAlpha(100);
+			exitO.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						otep.dismiss();
+						Scroll6 = null;
+					}
+			}));
+			lot1.addView(exitO);
+			
+			
+			var spam = new Button(ctx);
+			spam.setText("Spammer");
+			spam.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			spam.setPadding(25, 2, 2, 2);
+			if(spammer == false) {
+			spam.setBackground(bg2);
+			}else {
+			spam.setBackground(bg3);
+			}
+			spam.getBackground().setAlpha(100);
+			spam.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(spammer == false) {
+						spammer = true
+					spam.setBackground(bg3);
+						}else {
+						spammer = false;
+						spam.setBackground(bg2);
+						}
+					}
+			}));
+			lot1.addView(spam);
+			
+			
+			
+
+
+otep = new PopupWindow(lot2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
+			otep.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+function setGui() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var lset1 = new LinearLayout(ctx);
+	lset1.setOrientation(1);
+	Scroll7 = new ScrollView(ctx);
+	
+	var lset2 = new LinearLayout(ctx);
+	lset2.setOrientation(1);
+	
+	Scroll7.addView(lset1);
+	lset2.addView(Scroll7);
+	lset2.setBackground(bg);
+	lset2.getBackground().setAlpha(100);
+	
+	
+	var exitS = new Button(ctx);
+			exitS.setText("Exit");
+			exitS.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			exitS.setPadding(25, 2, 2, 2);
+			exitS.setBackground(bg2);
+			exitS.getBackground().setAlpha(100);
+			exitS.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						setep.dismiss();
+						Scroll7 = null;
+					}
+			}));
+			lset1.addView(exitS);
+
+    		var settname = new TextView(ctx);
 		settname.setText("Client Settings");
 		settname.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		settname.setTextSize(16);
 		settname.setGravity(Gravity.CENTER);
-  screen.addView(settname);
+  lset1.addView(settname);
   
   var trn = new TextView(ctx);
 		trn.setText(stripe);
 		trn.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		trn.setTextSize(16);
 		trn.setGravity(Gravity.CENTER);
-  screen.addView(trn);
+  lset1.addView(trn);
       
       var settname3 = new TextView(ctx);
 		settname3.setText("Tower");
 		settname3.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		settname3.setTextSize(16);
 		settname3.setGravity(Gravity.CENTER);
-  screen.addView(settname3);
+  lset1.addView(settname3);
   
   var jptw = new CheckBox(ctx);
   jptw.setText("Jump");
@@ -847,7 +1432,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
       jptw.setChecked(jptwed);
       }
       }));
-      screen.addView(jptw);
+      lset1.addView(jptw);
       
       var extw = new CheckBox(ctx);
   extw.setText("Experimental");
@@ -865,14 +1450,14 @@ ctx.runOnUiThread(new Runnable({ run: function(){
       extw.setChecked(extwed);
       }
       }));
-      screen.addView(extw);
+      lset1.addView(extw);
       
             var je1s = new TextView(ctx);
 		je1s.setText(stripe);
 		je1s.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		je1s.setTextSize(16);
 		je1s.setGravity(Gravity.CENTER);
-  screen.addView(je1s);
+  lset1.addView(je1s);
   
   
   
@@ -881,7 +1466,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
 		je2s.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		je2s.setTextSize(16);
 		je2s.setGravity(Gravity.CENTER);
-  screen.addView(je2s);
+  lset1.addView(je2s);
   
   
   
@@ -902,7 +1487,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
       je1.setChecked(jened);
       }
       }));
-      screen.addView(je1);
+      lset1.addView(je1);
       
 
 
@@ -922,7 +1507,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
       je2.setChecked(jesushed);
       }
       }));
-      screen.addView(je2);
+      lset1.addView(je2);
 
       var je3 = new CheckBox(ctx);
   je3.setText("speed");
@@ -940,7 +1525,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
       je3.setChecked(jesussed);
       }
       }));
-      screen.addView(je3);
+      lset1.addView(je3);
       
       
       
@@ -950,7 +1535,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
 		ai1s.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		ai1s.setTextSize(16);
 		ai1s.setGravity(Gravity.CENTER);
-  screen.addView(ai1s);
+  lset1.addView(ai1s);
   
   
   
@@ -959,7 +1544,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
 		ai2s.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		ai2s.setTextSize(16);
 		ai2s.setGravity(Gravity.CENTER);
-  screen.addView(ai2s);
+  lset1.addView(ai2s);
   
   
   
@@ -977,7 +1562,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
       mobaim.setChecked(mobaimed);
       }
       }));
-      screen.addView(mobaim);
+      lset1.addView(mobaim);
       
 
   
@@ -995,7 +1580,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
       playai.setChecked(playaimed);
       }
       }));
-      screen.addView(playai);
+      lset1.addView(playai);
       
 
 
@@ -1015,7 +1600,7 @@ var aimn = new CheckBox(ctx);
       aimn.setChecked(naimed);
       }
       }));
-      screen.addView(aimn);
+      lset1.addView(aimn);
       
       
       
@@ -1035,21 +1620,38 @@ var aimn = new CheckBox(ctx);
       aimr.setChecked(raimed);
       }
       }));
-      screen.addView(aimr);
+      lset1.addView(aimr);
+      
+      var aimb = new CheckBox(ctx);
+  aimb.setText("AntiBots");
+  aimb.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+  aimb.setChecked(baimed);
+  aimb.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
+      onCheckedChanged: function(){
+      if(!baimed){
+      antibot = true;
+      baimed = true;
+      }else{
+      baimed = false;
+      antibot = false;
+      }
+      aimb.setChecked(baimed);
+      }
+      }));
       
       var sps = new TextView(ctx);
 		sps.setText(stripe);
 		sps.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		sps.setTextSize(16);
 		sps.setGravity(Gravity.CENTER);
-  screen.addView(sps);
+  lset1.addView(sps);
       
       var sps2 = new TextView(ctx);
 		sps2.setText("Speed/Mode");
 		sps2.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		sps2.setTextSize(16);
 		sps2.setGravity(Gravity.CENTER);
-  screen.addView(sps2);
+  lset1.addView(sps2);
   
   
 
@@ -1070,7 +1672,7 @@ var spn = new CheckBox(ctx);
       spn.setChecked(spned);
       }
       }));
-      screen.addView(spn);
+      lset1.addView(spn);
       
       var spct = new CheckBox(ctx);
   spct.setText("Custom");
@@ -1088,7 +1690,7 @@ var spn = new CheckBox(ctx);
       spct.setChecked(spcted);
       }
       }));
-      screen.addView(spct);
+      lset1.addView(spct);
       
       
       
@@ -1096,9 +1698,9 @@ var spn = new CheckBox(ctx);
                         var spau = new TextView(ctx);
 		spau.setText(stripe);
 		spau.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		ai1s.setTextSize(16);
+		spau.setTextSize(16);
 		spau.setGravity(Gravity.CENTER);
-  screen.addView(spau);
+  lset1.addView(spau);
   
   
   
@@ -1107,7 +1709,7 @@ var spn = new CheckBox(ctx);
 		spau.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 		spau.setTextSize(16);
 		spau.setGravity(Gravity.CENTER);
-  screen.addView(spau);
+  lset1.addView(spau);
   
   
   
@@ -1122,46 +1724,71 @@ var spn = new CheckBox(ctx);
       }else{
       spamb = false;
       }
-      spam1.setChecked(spamb);
+      spam2.setChecked(spamb);
       }
       }));
-      screen.addView(spam1);
+      lset1.addView(spam2);
       
-      
-      
+      var sptp = new TextView(ctx);
+		sptp.setText(stripe);
+		sptp.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+		sptp.setTextSize(16);
+		sptp.setGravity(Gravity.CENTER);
+  lset1.addView(sptp);
+  
+  var spau = new TextView(ctx);
+		spau.setText("Teleport");
+		spau.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+		spau.setTextSize(16);
+		spau.setGravity(Gravity.CENTER);
+  lset1.addView(spau);
   
   
-      
- smenu = new PopupWindow(screen2, ctx.getWindowManager().getDefaultDisplay().getWidth()/2, ctx.getWindowManager().getDefaultDisplay().getHeight()/1);
-			smenu.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.TOP, 0, 0);
-			}catch(error){
+  
+  var tp2 = new CheckBox(ctx);
+  tp2.setText("EntityDirect");
+  tp2.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+  tp2.setChecked(playerport);
+  tp2.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
+      onCheckedChanged: function(){
+      if(!playerport){
+      playerport = true;
+      ported2 = true;
+      }else{
+      playerport = false;
+      }
+      tp2.setChecked(playerport);
+      }
+      }));
+      lset1.addView(tp2);
+
+setep = new PopupWindow(lset2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
+			setep.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.CENTER, 0, 0);
+
+	}catch(error){
 				Toast.makeText(ctx, "An error occured: " + error, 1).show();
 			}
 	}}));
 }
-      
- function settingExit(){
-	ctx.runOnUiThread(new Runnable({ run: function(){
-		try{
-			var sxLayout = new LinearLayout(ctx);
-			var sxButton = new Button(ctx);
-			sxButton.setText('X');
-			sxButton.setTextColor(Color.BLACK);
-			sxButton.setOnClickListener(new View.OnClickListener({
-				onClick: function(viewarg){
-					sexitUI.dismiss();
-					smenu.dismiss();
-				}
-			}));
-			sxLayout.addView(sxButton);
-			
-			sexitUI = new PopupWindow(sxLayout, dip2px(40), dip2px(40));
-			sexitUI.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-			sexitUI.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.BOTTOM, 0, 0);
-			}catch(exception){
-				Toast.makeText(ctx, exception, 1).show();
-			}
-	}}));
+
+function jetpackTick() { 
+toDirectionalVector(playerDir, (getYaw() + 90) * DEG_TO_RAD, getPitch() * DEG_TO_RAD * -1); 
+var player = getPlayerEnt(); 
+setVelX(player, pS * playerDir[0]); 
+//setVelY(player, playerFlySpeed * playerDir[1]); 
+setVelZ(player, pS * playerDir[2]);
+}
+
+function toDirectionalVector(vector, yaw, pitch) {
+vector[0] = Math.cos(yaw) * Math.cos(pitch); vector[1] = Math.sin(pitch); 
+vector[2] = Math.sin(yaw) * Math.cos(pitch);
+}
+
+function followTick() { 
+toDirectionalVector(playerDir, (getYaw() + 90) * DEG_TO_RAD, getPitch() * DEG_TO_RAD * -1); 
+var player = getPlayerEnt(); 
+setVelX(player, 0.4 * playerDir[0]); //setVelY(player, playerFlySpeed * playerDir[1]); 
+setVelZ(player, 0.4 * playerDir[2]);
 }
 
 function modTick()
@@ -1176,7 +1803,6 @@ friends.push("LonelyDazab");
 var x = Player.getX();
 var y = Player.getX();
 var z = Player.getZ();
-
 
 if(spammer == true) {
 if(spamtime != 0) {
@@ -1218,6 +1844,10 @@ if(Utils.Player.onGround())
 setVelY(getPlayerEnt(), 0.2);
 vspeed = false;
  }
+if(fastladder == true){
+if(getTile(getPlayerX(), getPlayerY() +1, getPlayerZ()) == 65){
+	setVelY(getPlayerEnt(), climbspeed);
+	}}
 if(sped == true && ctspeed == true && groundct == false){
 setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*motionct);
 setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*motionct);
@@ -1241,9 +1871,21 @@ if(getTile(getPlayerX(), getPlayerY() - 2, getPlayerZ()) == 0){
 setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*jumpboost);
 setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*jumpboost);
  }}
+if(safewalk == true){
+Entity.setSneaking(getPlayerEnt(), true);
+ }
+if(scaffold){
+ setTile(Player.getX(), Player.getY() - 2, Player.getZ(), 24)
+setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*0.55);
+setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*0.55);
+ }
 if(jumpct1 == true && jumpct == true && ctspeed == true && sped == true){
 if(Utils.Player.onGround())
 setVelY(getPlayerEnt(), velct);
+ }
+if(ctyport == true && ctspeed == true && sped == true){
+if(Utils.Player.onGround())
+setPosition(getPlayerEnt(), getPlayerX(), getPlayerY() + 0.1, getPlayerZ())
  }
 if(glide){
 setVelY(getPlayerEnt(), -gdown);
@@ -1263,6 +1905,9 @@ setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*1.18);
 if(Utils.Player.onGround())
 setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*1.18);
  }}
+if(sped == false){
+ModPE.setGameSpeed(20);
+ }
 if(normalsp && sped){
 if(Utils.Player.onGround())
 setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*smotion);
@@ -1358,14 +2003,13 @@ time = 40;
 setVelY(getPlayerEnt(), 0.8);
  }}
 if(tower == true && exptower == true){
-setRot(getPlayerEnt(), 0, 90);
 if(time !== 0) {
 time--;
 }
 if(time == 0) {
-time = 20;
-setPosition(getPlayerEnt(), getPlayerX(), getPlayerY() + 1.0, getPlayerZ())
-Level.setTile(Player.getPointedBlockX(), Player.getPointedBlockY() - 2, Player.getPointedBlockZ(), 24)
+time = 8;
+setPosition(getPlayerEnt(), getPlayerX(), getPlayerY() + 1.5, getPlayerZ())
+setTile(Player.getX(), Player.getY() - 3, Player.getZ(), 24)
  }}
 if(bouncefly){
 setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*1.08);
@@ -1379,16 +2023,31 @@ setVelY(getPlayerEnt(),  0.33);
  }}
  
  var target = Utils.Entity.nextEnt();
+ 
+ 
+ if(escap == true) {
+ if(target != null && Utils.Vel.calculateSpeed() == 1.0 == false) {
+Utils.Entity.doAimAtEnt(target);
+followTick();
+}}
+ 
 
 if(aim == true) {
 
 if(naim == true) {
 
       
-if(target != null) {
+if(target != null && Utils.Vel.calculateSpeed() == 1.0 == false) {
 Utils.Entity.aimAtEnt(target);
-}
-}
+}}
+
+if(baimed == true) {
+
+
+if(target != null){
+if(Utils.Entity.isGround(target))
+Utils.Entity.aimAtEnt(target);
+}}
 
 if(raim == true) {
 if(!Utils.Entity.calculateDist(target, 8)) {
@@ -1411,9 +2070,10 @@ health = Entity.getHealth(getPlayerEnt());
 }
 
 }
-
-
 }
+
+
+
 
 
 
@@ -2636,9 +3296,14 @@ health = Entity.getHealth(getPlayerEnt());
   
 function useItem(x, y, z, itemId, blockId, side)
 {
-if(ported == true){
+var pos = Utils.Entity.nextPort();
+if(ported == true && playerport == false){
 setPosition(getPlayerEnt(), Player.getPointedBlockX(), Player.getPointedBlockY() + 3.0, Player.getPointedBlockZ())
  }
+if(ported == true && playerport == true){
+if(pos != null){
+setPosition(getPlayerEnt(), Entity.getX(pos), Entity.getY(pos) + 3, Entity.getZ(pos))
+}}
 }
   
 function chatHook(text) {
@@ -2657,6 +3322,7 @@ clientMessage(Client+"§a.friends (to list up your friends)");
 clientMessage(Client+"§a.removeFriend <friend> to remove friend");
 clientMessage(Client+"§a.spammessage <spam word>");
 clientMessage(Client+"§a.spamdelay <delay>");
+clientMessage(Client+"§a.ladderspeed <Value>");
  }
  
  if(spli[0] == ".spammessage") {
@@ -2688,7 +3354,7 @@ aimed = false;
 aim = false;
 clientMessage("§7[§aXive§7] §aAimAura disabled");
 }}
-if(spli[0] == ".aimrange") {
+if(spli[0] == ".aimrange" || spli[0] == ".ar") {
 preventDefault();
  if(parseFloat(spli[1])) {
  maxr = spli[1];
@@ -2843,25 +3509,43 @@ clientMessage("§7[§aXive§7] §aTry .glidemotion | .glidespeed");
  
 if(spli[0] == ".friend") {
 preventDefault();
-clientMessage(Client +"add friend: " +spli[1]);
-friends.push(spli[1]);
+var friend = "";
+for(i = 1;i<spli.length;i++) {
+friend = friend + spli[i];
+if(i != spli.length - 1) {
+friend = friend + " ";
+}
+}
+
+clientMessage(Client +"add friend: " +friend);
+friends.push(friend);
 }
 if(text == ".friends") {
 preventDefault();
-clientMessage(Client +"§2" +friends);
+clientMessage(Client +"§a" +friends);
 }
 if(spli[0] == ".removeFriend") {
 preventDefault();
+
+var friend = "";
+for(i = 1;i<spli.length;i++) {
+friend = friend + spli[i];
+if(i != spli.length - 1) {
+friend = friend + " ";
+}
+}
 for(i = 0;i < friends.length;i++) {
-if(friends[i] == spli[1]) {
-clientMessage(Client +"removed friend: "+ spli[1]);
+if(friends[i] == friend) {
+clientMessage(Client +"removed friend: "+ friend);
 friends.splice(i, 1);
 }else {
 clientMessage(Client +"invalid Arguments");
-}}}
+}}
+
+}
 if(text==".ctspeed"){
 preventDefault();
-clientMessage("§7[§aXive§7] §aTry .ctmotion | .cttimer | .ctjump | .ctmotionground | .ctvel");
+clientMessage("§7[§aXive§7] §aTry .ctmotion | .cttimer | .ctjump | .ctmotionground | .ctvel | .ctyport");
  }
 if(text==".ctjump"){
 preventDefault();
@@ -2907,7 +3591,7 @@ clientMessage("§7[§aXive§7] §aCustomSpeed MotionOnGround enabled");
  }}
 if(text==".configs"){
 preventDefault();
-clientMessage(Client+"§7available Configs: LBSG");
+clientMessage(Client+"§7available Configs: LBSG, Goat");
 clientMessage(Client+"§7load a config with .cload <Config>");
  }
 if(text==".cload LBSG"){
@@ -2923,9 +3607,10 @@ clientMessage(Client+"§7Loaded Config 'LBSG' succesfully");
 if(text==".cload Goat"){
 preventDefault();
 maxr = 4;
-smotion = 1.3;
+smotion = 1.15;
 gspeed = 1.03;
 gdown = 0.4;
+ladderspeed = 0.4;
 clientMessage(Client+"§7Loaded Config 'Goat' succesfully");
  }
 if(spli[0] == ".jumpboost") {
@@ -2936,4 +3621,29 @@ clientMessage("§7[§aXive§7] §aset Longjump Boost to: "+spli[1]);
  }else {
  clientMessage("§7[§aXive§7] §aInvalid Arguments");
  }}
+if(spli[0] == ".ladderspeed"){
+preventDefault();
+if(parseFloat(spli[1])) {
+climbspeed = spli[1];
+clientMessage(Client+"§aset Ladder Speed to: "+spli[1]);
+ }else{
+ clientMessage(Client+"§aInvalid Arguments");
+ }}
+if(spli[0] == ".tprange" || spli[0] == ".tpr"){
+preventDefault();
+if(parseFloat(spli[1])){
+portrange = spli[1];
+clientMessage(Client+"§aset Teleport Range to: "+spli[1]);
+}else{
+clientMessage(Client+"§aInvalid Arguments");
+}}
+if(text==".ctyport"){
+preventDefault();
+if(ctyport == false){
+ctyport = true;
+clientMessage(Client+"§aCustomSpeed YPort enabled");
+}else{
+ctyport = false;
+clientMessage(Client+"§aCustomSpeed YPort disabled");
+}}
 }
