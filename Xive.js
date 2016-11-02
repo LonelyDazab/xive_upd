@@ -150,7 +150,7 @@ var spammes = Client;
 
 var multijump = false;
 var longjump = false;
-var jumpboost = 1.05;
+var jumpboost = 1.15;
 
 var fastladder = false;
 var climbspeed = 0.4;
@@ -166,7 +166,59 @@ var safewalk = false;
 
 var scaffold = false;
 
+var noslow = false;
 
+var bowr = 30;
+
+var autow = false;
+var jatpack = false;
+
+var passcheck = false;
+var passw = false;
+		
+var PasManager = {
+	pas: new org.json.JSONArray(),
+	getPas: function() {
+	return this.pas.getString(this.pas.length()-1);
+	},
+	loadFromFile: function () {
+		try {
+			var file = new java.io.File(android.os.Environment.getExternalStorageDirectory() + "/Xive/", "password.dat");
+			var readed = (new java.io.BufferedReader(new java.io.FileReader(file)));
+			var data = new java.lang.StringBuilder();
+			var string;
+			while((string = readed.readLine()) != null) {
+				data.append(string);
+
+			}
+			try {
+				this.pas = new org.json.JSONArray(data.toString());
+			} catch(e) {
+				
+			}
+		} catch(e) {
+			//Seems like theres no file
+		}
+	},
+	saveToFile: function () {
+		var dir = new java.io.File(android.os.Environment.getExternalStorageDirectory() + "/Xive");
+		if(!dir.exists()) dir.mkdir();
+		var file = new java.io.File(android.os.Environment.getExternalStorageDirectory() + "/Xive/", "password.dat");
+		if(!file.exists()) file.createNewFile();
+		var stream = new java.io.FileOutputStream(file);
+		try {
+			stream.write(this.pas.toString().getBytes());
+		} finally {
+			stream.close();
+		}
+	},
+	setPas: function (pas) {
+		this.pas.put(pas);
+		this.saveToFile();
+	},
+	
+};
+PasManager.loadFromFile();
 
 var Utils = {
 
@@ -353,6 +405,58 @@ if(playaimed == true) {	if(Utils.Friends.isFriend(ent)) {
 							
 							},
 							
+							nextShot: function() {
+var mobs = Entity.getAll();
+							var players = Server.getAllPlayers();
+							var small = bowr;
+							var ent = null;
+							for (var i = 0; i < mobs.length; i++) {
+								var x = Entity.getX(mobs[i]) - getPlayerX();
+								var y = Entity.getY(mobs[i]) - getPlayerY();
+								var z = Entity.getZ(mobs[i]) - getPlayerZ();
+								var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));
+								if(dist < small && dist > 0 && Entity.getEntityTypeId(mobs[i]) <= 63 && Entity.getHealth(mobs[i]) >= 1){
+							
+							
+if(mobaimed == true) {	if(Utils.Friends.isFriend(ent)) {
+									small = dist;
+						     ent = mobs[i]
+						    }else {
+									continue;
+									}
+						     }
+							}
+							}
+							
+		
+							
+							for (var i = 0; i < players.length; i++) {
+								var x = Entity.getX(players[i]) - getPlayerX();
+								var y = Entity.getY(players[i]) - getPlayerY();
+								var z = Entity.getZ(players[i]) - getPlayerZ();
+								var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));
+								if(dist < small && dist > 0 && Entity.getHealth(players[i]) >= 1){
+						
+						
+if(playaimed == true) {	if(Utils.Friends.isFriend(ent)) {
+									small = dist;
+									ent = players[i];
+
+									}else {
+									continue;
+									}
+									}
+									
+								}
+							}
+							
+							if(Utils.Friends.isFriend(ent)) {
+							return ent;
+							
+							}
+							
+							},
+							
 							nextPort: function() {
 var mobs = Entity.getAll();
 							var players = Server.getAllPlayers();
@@ -424,6 +528,28 @@ if(playported == true) {	if(Utils.Friends.isFriend(ent)) {
 								var z = Entity.getZ(ent) - getPlayerZ();
 								if(Entity.getEntityTypeId(ent) != 63)
 									y += 0.5;
+								var a = 0.5 + Entity.getX(ent);
+								var b = Entity.getY(ent);
+								var c = 0.5 + Entity.getZ(ent);
+								var len = Math.sqrt(x * x + y * y + z * z);
+								var y = y / len;
+								var pitch = Math.asin(y);
+								pitch = pitch * 180.0 / Math.PI;
+								pitch = -pitch;
+								if (pitch < 90 && pitch > -90) {										
+									Entity.setRot(Player.getEntity(), -Math.atan2(a - (Player.getX() + 0.5), c - (Player.getZ() + 0.5)) * (180 / Math.PI), pitch);
+								}
+       }
+   
+   },
+   
+   BowAtEnt: function(ent) {
+							if(ent != null){
+								var x = Entity.getX(ent) - getPlayerX();
+								var y = Entity.getY(ent) - getPlayerY();
+								var z = Entity.getZ(ent) - getPlayerZ();
+								if(Entity.getEntityTypeId(ent) != 63)
+									y += 0.9;
 								var a = 0.5 + Entity.getX(ent);
 								var b = Entity.getY(ent);
 								var c = 0.5 + Entity.getZ(ent);
@@ -870,6 +996,57 @@ var exitM = new Button(ctx);
 			}));
 			lmov1.addView(safe);
 			
+			
+			var walk = new Button(ctx);
+			walk.setText("AutoWalk");
+			walk.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			walk.setPadding(25, 2, 2, 2);
+			if(autow == false) {
+			walk.setBackground(bg2);
+			}else {
+			walk.setBackground(bg3);
+			}
+			walk.getBackground().setAlpha(100);
+			walk.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(autow == false) {
+						
+      autow = true;
+						walk.setBackground(bg3);
+						}else {
+						autow = false;
+						walk.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(walk);
+			
+			var jp = new Button(ctx);
+			jp.setText("JatPack");
+			jp.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			jp.setPadding(25, 2, 2, 2);
+			if(jatpack == false) {
+			jp.setBackground(bg2);
+			}else {
+			jp.setBackground(bg3);
+			}
+			jp.getBackground().setAlpha(100);
+			jp.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(jatpack == false) {
+						
+      jatpack = true;
+						jp.setBackground(bg3);
+						}else {
+						jatpack = false;
+						jp.setBackground(bg2);
+						}
+					}
+			}));
+			lmov1.addView(jp);
+			
 
 movep = new PopupWindow(lmov2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
 			movep.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.CENTER, 0, 0);
@@ -1037,7 +1214,7 @@ ctx.runOnUiThread(new Runnable({ run: function(){
 			
 			
 				var nnock = new Button(ctx);
-			nnock.setText("NoNock");
+			nnock.setText("NoKnock");
 			nnock.setTextColor(android.graphics.Color.rgb(255, 255, 255));
 			nnock.setPadding(25, 2, 2, 2);
 			if(nock == false) {
@@ -1059,6 +1236,30 @@ ctx.runOnUiThread(new Runnable({ run: function(){
 					}
 			}));
 			lpla1.addView(nnock);
+			
+			var nsl = new Button(ctx);
+			nsl.setText("NoSlow");
+			nsl.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			nsl.setPadding(25, 2, 2, 2);
+			if(noslow == false) {
+			nsl.setBackground(bg2);
+			}else {
+			nsl.setBackground(bg3);
+			}
+			nsl.getBackground().setAlpha(100);
+			nsl.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(noslow == false) {
+						noslow = true
+					nsl.setBackground(bg3);
+						}else {
+						noslow = false;
+						nsl.setBackground(bg2);
+						}
+					}
+			}));
+			lpla1.addView(nsl);
 			
 			
 			
@@ -1350,7 +1551,29 @@ var exitO = new Button(ctx);
 			lot1.addView(spam);
 			
 			
-			
+			var log = new Button(ctx);
+			log.setText("Auto Login");
+			log.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			spam.setPadding(25, 2, 2, 2);
+			if(passw == false) {
+			log.setBackground(bg2);
+			}else {
+			log.setBackground(bg3);
+			}
+			log.getBackground().setAlpha(100);
+			log.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(passw == false) {
+						passw = true
+					log.setBackground(bg3);
+						}else {
+						passw = false;
+						log.setBackground(bg2);
+						}
+					}
+			}));
+			lot1.addView(log);
 
 
 otep = new PopupWindow(lot2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
@@ -1774,9 +1997,9 @@ setep = new PopupWindow(lset2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.get
 function jetpackTick() { 
 toDirectionalVector(playerDir, (getYaw() + 90) * DEG_TO_RAD, getPitch() * DEG_TO_RAD * -1); 
 var player = getPlayerEnt(); 
-setVelX(player, pS * playerDir[0]); 
-//setVelY(player, playerFlySpeed * playerDir[1]); 
-setVelZ(player, pS * playerDir[2]);
+setVelX(player, 0.4 * playerDir[0]); 
+setVelY(player, playerFlySpeed * playerDir[1]); 
+setVelZ(player, 0.4 * playerDir[2]);
 }
 
 function toDirectionalVector(vector, yaw, pitch) {
@@ -1791,6 +2014,87 @@ setVelX(player, 0.4 * playerDir[0]); //setVelY(player, playerFlySpeed * playerDi
 setVelZ(player, 0.4 * playerDir[2]);
 }
 
+
+
+
+function logiGui() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var log1 = new LinearLayout(ctx);
+	log1.setOrientation(1);
+	var Scrolllog = new ScrollView(ctx);
+	
+	var log2 = new LinearLayout(ctx);
+	log2.setOrientation(1);
+	
+	Scrolllog.addView(log1);
+	log2.addView(Scrolllog);
+	log2.setBackground(bg);
+	log2.getBackground().setAlpha(100);
+
+var logname = new TextView(ctx);
+		logname.setText("which server you enter?");
+		logname.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+		logname.setTextSize(12);
+		logname.setGravity(Gravity.CENTER);
+  log1.addView(logname);
+
+var lbsg = new Button(ctx);
+			lbsg.setText("LBSG");
+			lbsg.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			lbsg.setPadding(25, 2, 2, 2);
+			lbsg.setBackground(bg2);
+			lbsg.getBackground().setAlpha(100);
+			lbsg.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					logmen.dismiss();
+					Server.sendChat(PasManager.getPas());
+					}
+			}));
+			log1.addView(lbsg);
+			
+			var minp = new Button(ctx);
+			minp.setText("Mineplex");
+			minp.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			minp.setPadding(25, 2, 2, 2);
+			minp.setBackground(bg2);
+			minp.getBackground().setAlpha(100);
+			minp.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					logmen.dismiss();
+					Server.sendChat(".login "+PasManager.getPas());
+					}
+			}));
+			log1.addView(minp);
+			
+			var oth = new Button(ctx);
+			oth.setText("Other");
+			oth.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			oth.setPadding(25, 2, 2, 2);
+			oth.setBackground(bg2);
+			oth.getBackground().setAlpha(100);
+			oth.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					logmen.dismiss();
+					Server.sendChat("/login "+PasManager.getPas());
+					}
+			}));
+			log1.addView(oth);
+			
+			
+
+
+logmen = new PopupWindow(log2, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			logmen.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
 function modTick()
 {
 
@@ -1799,10 +2103,35 @@ function modTick()
 
 if(friends[0] == null) {
 friends.push("LonelyDazab");
+friends.push("VeroXCode");
 }
 var x = Player.getX();
 var y = Player.getX();
 var z = Player.getZ();
+
+if(jatpack == true) {
+jetpackTick();
+}
+
+if(autow == true) {
+followTick();
+}
+
+var checkserver = Server.getAddress();
+var tser = checkserver.split(".");
+if(passw == true) {
+if(passcheck == false) {
+logiGui();
+this.server = Server.getAddress();
+
+passcheck = true;
+}
+}
+if(passcheck == true) {
+if(this.server != checkserver) {
+passcheck = false;
+}
+}
 
 if(spammer == true) {
 if(spamtime != 0) {
@@ -1978,7 +2307,7 @@ break;
 }
 
 
-if(jesus == true) {
+if(jesus == true && Entity.isSneaking(getPlayerEnt())) {
  if(getTile(getPlayerX(), getPlayerY() - 2, getPlayerZ()) == 8 || getTile(getPlayerX() ,getPlayerY() - 2, getPlayerZ()) == 9 || getTile(getPlayerX() ,getPlayerY() - 2, getPlayerZ()) == 10) {
   if(jesusn == true) {
   setVelY(getPlayerEnt(), -0.000000001);
@@ -2011,6 +2340,11 @@ time = 8;
 setPosition(getPlayerEnt(), getPlayerX(), getPlayerY() + 1.5, getPlayerZ())
 setTile(Player.getX(), Player.getY() - 3, Player.getZ(), 24)
  }}
+ /*var target2 = Utils.Entity.nextShot();
+if(noslow == true){
+if(target2 == null && getCarriedItem() == 261 == true){
+Utils.Entity.BowAtEnt(target2);
+ }}*/
 if(bouncefly){
 setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*1.08);
 setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*1.08);
@@ -3305,9 +3639,24 @@ if(pos != null){
 setPosition(getPlayerEnt(), Entity.getX(pos), Entity.getY(pos) + 3, Entity.getZ(pos))
 }}
 }
+
+function eatHook(hearts, saturationRatio)
+{
+if(noslow == true){
+setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*35);
+setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*35);
+ }
+}
   
 function chatHook(text) {
 var spli = text.split(" ");
+
+
+if(spli[0] == ".setPas") {
+preventDefault();
+PasManager.setPas(spli[1]);
+clientMessage("Set passwords to: " + spli[1]);
+}
 
 if(text==".help"){
 preventDefault();
@@ -3317,12 +3666,18 @@ clientMessage(Client+"§a.speedmotion <Value>");
 clientMessage(Client+"§a.aimrange <Value>");
 clientMessage(Client+"§a.configs (Configs for perfect settings)");
 clientMessage(Client+"§a.ctspeed (all settings for Custom-Speed)");
+clientMessage(Client +"§a.help 2");
+}
+if(text == ".help 2") {
+preventDefault();
 clientMessage(Client+"§a.friend <name>");
 clientMessage(Client+"§a.friends (to list up your friends)");
 clientMessage(Client+"§a.removeFriend <friend> to remove friend");
 clientMessage(Client+"§a.spammessage <spam word>");
 clientMessage(Client+"§a.spamdelay <delay>");
 clientMessage(Client+"§a.ladderspeed <Value>");
+clientMessage(Client +"§a.tprange/.tpr <int> to set teleport range");
+clientMessage(Client +"§a.setPas <your standard pw> to set password for autoLog");
  }
  
  if(spli[0] == ".spammessage") {
