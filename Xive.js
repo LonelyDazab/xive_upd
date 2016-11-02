@@ -2121,10 +2121,14 @@ var checkserver = Server.getAddress();
 var tser = checkserver.split(".");
 if(passw == true) {
 if(passcheck == false) {
+if(PasManager.getPas() != null) {
 logiGui();
 this.server = Server.getAddress();
 
 passcheck = true;
+}else {
+ModPE.showTipMessage("please first set your standart pw with: .setPas <pw>");
+}
 }
 }
 if(passcheck == true) {
