@@ -41,8 +41,14 @@ var Scroll3 = null;
 var Scroll4 = null;
 var Scroll5 = null;
 var Scroll6 = null;
-
 var Scroll7 = null;
+
+var Scrollsetw = null;
+var Scrollsetje = null;
+var Scrollsetai = null;
+var Scrollsetspeed = null;
+var Scrollsettele = null;
+var Scrollsetcol = null;
 
 var bypsed = false;
 var bpasssw = false;
@@ -77,6 +83,7 @@ var jumpct = false;
 var jumpct1 = true;
 var groundct = true;
 var ctyport = false;
+var jhspe = false;
 
 var eaet = false;
 var uspe = 2;
@@ -176,6 +183,8 @@ var jatpack = false;
 
 var passcheck = false;
 var passw = false;
+
+var nofall = false;
 		
 var PasManager = {
 	pas: new org.json.JSONArray(),
@@ -338,7 +347,24 @@ Block: {
 		var velo = gravity;
 		if(!Utils.Player.onGround() && Entity.getVelY(Player.getEntity()) < velo) return true;
 		return false;
-		}
+		},
+	
+	checkHeigth: function() {
+	var x = getPlayerX();
+	var y = getPlayerY();
+	var z = getPlayerZ();
+	var ground = true;
+	var gy;
+	for(i=0;i<256;i++) {
+	if(getTile(x, y-i, z) != 0) {
+	ground = false;
+	gy = y-i+1.6;
+	break;
+	}
+	}
+	
+	return gy;
+	}
 	},
 	
 	   Entity: {
@@ -603,6 +629,16 @@ if(playported == true) {	if(Utils.Friends.isFriend(ent)) {
 			return Math.sqrt(Math.pow(Entity.getVelX(getPlayerEnt()), 2) + Math.pow(Entity.getVelZ(getPlayerEnt()), 2));
 		}
 	}
+}
+
+function clearCli() {
+if(Scroll1 != null) {
+menu.dismiss();
+						Scroll1 = null;
+						}
+	clearGui();
+diSeSo();
+
 }
 
 
@@ -1311,6 +1347,30 @@ ctx.runOnUiThread(new Runnable({ run: function(){
 					}
 			}));
 			lpla1.addView(esc);
+			
+			var nfall = new Button(ctx);
+			nfall.setText("NoFall");
+			nfall.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			nfall.setPadding(25, 2, 2, 2);
+			if(nofall == false) {
+			nfall.setBackground(bg2);
+			}else {
+			nfall.setBackground(bg3);
+			}
+			nfall.getBackground().setAlpha(100);
+			nfall.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					
+						if(nofall == false) {
+						nofall = true
+					nfall.setBackground(bg3);
+						}else {
+						nofall = false;
+						nfall.setBackground(bg2);
+						}
+					}
+			}));
+			lpla1.addView(nfall);
 
 
 plaep = new PopupWindow(lpla2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
@@ -1622,369 +1682,128 @@ ctx.runOnUiThread(new Runnable({ run: function(){
     		var settname = new TextView(ctx);
 		settname.setText("Client Settings");
 		settname.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+		settname.setBackground(bg2);
 		settname.setTextSize(16);
 		settname.setGravity(Gravity.CENTER);
   lset1.addView(settname);
   
-  var trn = new TextView(ctx);
-		trn.setText(stripe);
-		trn.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		trn.setTextSize(16);
-		trn.setGravity(Gravity.CENTER);
-  lset1.addView(trn);
-      
-      var settname3 = new TextView(ctx);
-		settname3.setText("Tower");
-		settname3.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		settname3.setTextSize(16);
-		settname3.setGravity(Gravity.CENTER);
-  lset1.addView(settname3);
   
-  var jptw = new CheckBox(ctx);
-  jptw.setText("Jump");
-  jptw.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  jptw.setChecked(jptwed);
-  jptw.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!jptwed){
-      jptwed = true;
-      jumptower = true;
-      }else{
-      jptwed = false;
-      jumptower = false;
-      }
-      jptw.setChecked(jptwed);
-      }
-      }));
-      lset1.addView(jptw);
       
-      var extw = new CheckBox(ctx);
-  extw.setText("Experimental");
-  extw.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  extw.setChecked(extwed);
-  extw.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!extwed){
-      extwed = true;
-      exptower = true;
-      }else{
-      extwed = false;
-      exptower = false;
-      }
-      extw.setChecked(extwed);
-      }
-      }));
-      lset1.addView(extw);
-      
-            var je1s = new TextView(ctx);
-		je1s.setText(stripe);
-		je1s.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		je1s.setTextSize(16);
-		je1s.setGravity(Gravity.CENTER);
-  lset1.addView(je1s);
-  
-  
-  
-  var je2s = new TextView(ctx);
-		je2s.setText("Jesus");
-		je2s.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		je2s.setTextSize(16);
-		je2s.setGravity(Gravity.CENTER);
-  lset1.addView(je2s);
-  
-  
-  
-
-      var je1 = new CheckBox(ctx);
- je1.setText("normal");
-  je1.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  je1.setChecked(jened);
-  je1.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!jesusn){
-      jesusn = true;
-      jened = true;
-      }else{
-      jesusn = false;
-      jened = false;
-      }
-      je1.setChecked(jened);
-      }
-      }));
-      lset1.addView(je1);
-      
-
-
-      var je2 = new CheckBox(ctx);
-  je2.setText("hop");
-  je2.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  je2.setChecked(jesushed);
-  je2.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!jesushed){
-      jesushed = true;
-      jesush = true;
-      }else{
-      jesushed = false;
-      jesush = false;
-      }
-      je2.setChecked(jesushed);
-      }
-      }));
-      lset1.addView(je2);
-
-      var je3 = new CheckBox(ctx);
-  je3.setText("speed");
-  je3.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  je3.setChecked(jesussed);
-  je3.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!jesussed){
-      jesuss = true;
-      jesussed = true;
-      }else{
-      jesussed = false;
-      jesuss = false;
-      }
-      je3.setChecked(jesussed);
-      }
-      }));
-      lset1.addView(je3);
+      var twsets = new Button(ctx);
+			twsets.setText("Tower");
+			twsets.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			twsets.setPadding(25, 2, 2, 2);
+			twsets.setBackground(bg2);
+			twsets.getBackground().setAlpha(100);
+			twsets.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						if(Scrollsetw == null) {
+						diSeSo();
+						twSet();
+						
+						}
+					}
+			}));
+			lset1.addView(twsets);
       
       
       
-      
-                  var ai1s = new TextView(ctx);
-		ai1s.setText(stripe);
-		ai1s.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		ai1s.setTextSize(16);
-		ai1s.setGravity(Gravity.CENTER);
-  lset1.addView(ai1s);
-  
-  
-  
-  var ai2s = new TextView(ctx);
-		ai2s.setText("Aim/Targets");
-		ai2s.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		ai2s.setTextSize(16);
-		ai2s.setGravity(Gravity.CENTER);
-  lset1.addView(ai2s);
-  
-  
-  
-  var mobaim = new CheckBox(ctx);
-  mobaim.setText("Mobs");
-  mobaim.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  mobaim.setChecked(mobaimed);
-  mobaim.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!mobaimed){
-      mobaimed = true;
-      }else{
-      mobaimed = false;
-      }
-      mobaim.setChecked(mobaimed);
-      }
-      }));
-      lset1.addView(mobaim);
-      
-
-  
-  var playai = new CheckBox(ctx);
-  playai.setText("Player");
-  playai.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  playai.setChecked(playaimed);
-  playai.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!playaimed){
-      playaimed = true;
-      }else{
-      playaimed = false;
-      }
-      playai.setChecked(playaimed);
-      }
-      }));
-      lset1.addView(playai);
-      
-
-
-var aimn = new CheckBox(ctx);
-  aimn.setText("normal");
-  aimn.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  aimn.setChecked(naimed);
-  aimn.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!naimed){
-      naim = true;
-      naimed = true;
-      }else{
-      naimed = false;
-      naim = false;
-      }
-      aimn.setChecked(naimed);
-      }
-      }));
-      lset1.addView(aimn);
-      
-      
-      
-      var aimr = new CheckBox(ctx);
-  aimr.setText("ReactionAim");
-  aimr.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  aimr.setChecked(raimed);
-  aimr.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!raimed){
-      raim = true;
-      raimed = true;
-      }else{
-      raimed = false;
-      raim = false;
-      }
-      aimr.setChecked(raimed);
-      }
-      }));
-      lset1.addView(aimr);
-      
-      var aimb = new CheckBox(ctx);
-  aimb.setText("AntiBots");
-  aimb.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  aimb.setChecked(baimed);
-  aimb.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!baimed){
-      antibot = true;
-      baimed = true;
-      }else{
-      baimed = false;
-      antibot = false;
-      }
-      aimb.setChecked(baimed);
-      }
-      }));
-      
-      var sps = new TextView(ctx);
-		sps.setText(stripe);
-		sps.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		sps.setTextSize(16);
-		sps.setGravity(Gravity.CENTER);
-  lset1.addView(sps);
-      
-      var sps2 = new TextView(ctx);
-		sps2.setText("Speed/Mode");
-		sps2.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		sps2.setTextSize(16);
-		sps2.setGravity(Gravity.CENTER);
-  lset1.addView(sps2);
-  
+            
+            var jesets = new Button(ctx);
+			jesets.setText("Jesus");
+			jesets.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			jesets.setPadding(25, 2, 2, 2);
+			jesets.setBackground(bg2);
+			jesets.getBackground().setAlpha(100);
+			jesets.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						if(Scrollsetje == null) {
+						diSeSo();
+						jeSet();
+						}
+					}
+			}));
+			lset1.addView(jesets);
+            
+            
+                  
+  var aiset = new Button(ctx);
+			aiset.setText("AimAura");
+			aiset.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			aiset.setPadding(25, 2, 2, 2);
+			aiset.setBackground(bg2);
+		aiset.getBackground().setAlpha(100);
+			aiset.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						if(Scrollsetai == null) {
+						diSeSo();
+						aiSet();
+						}
+					}
+			}));
+			lset1.addView(aiset);
   
 
 
-var spn = new CheckBox(ctx);
-  spn.setText("Motion");
-  spn.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  spn.setChecked(spned);
-  spn.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!spned){
-      normalsp = true;
-      spned = true;
-      }else{
-      spned = false;
-      normalsp = false;
-      }
-      spn.setChecked(spned);
-      }
-      }));
-      lset1.addView(spn);
+      var sps = new Button(ctx);
+			sps.setText("Speed");
+			sps.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			sps.setPadding(25, 2, 2, 2);
+			sps.setBackground(bg2);
+		sps.getBackground().setAlpha(100);
+			sps.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						if(Scrollsetspeed == null) {
+						diSeSo();
+						seSet();
+						}
+					}
+			}));
+			lset1.addView(sps);
+  
       
-      var spct = new CheckBox(ctx);
-  spct.setText("Custom");
-  spct.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  spct.setChecked(spcted);
-  spct.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!spcted){
-      ctspeed = true;
-      spcted = true;
-      }else{
-      spcted = false;
-      ctspeed = false;
-      }
-      spct.setChecked(spcted);
-      }
-      }));
-      lset1.addView(spct);
-      
-      
-      
-      
-                        var spau = new TextView(ctx);
-		spau.setText(stripe);
-		spau.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		spau.setTextSize(16);
-		spau.setGravity(Gravity.CENTER);
-  lset1.addView(spau);
   
+   var telle = new Button(ctx);
+			telle.setText("Teleport");
+			telle.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			telle.setPadding(25, 2, 2, 2);
+			telle.setBackground(bg2);
+		telle.getBackground().setAlpha(100);
+			telle.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						if(Scrollsettele == null) {
+						diSeSo();
+						telSet();
+						}
+					}
+			}));
+			lset1.addView(telle);
   
+
+
+        var cols = new Button(ctx);
+			cols.setText("Color");
+			cols.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			cols.setPadding(25, 2, 2, 2);
+			cols.setBackground(bg2);
+		cols.getBackground().setAlpha(100);
+			cols.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+						
+						if(Scrollsetcol == null) {
+						diSeSo();
+						colSet();
+						}
+					}
+			}));
+			lset1.addView(cols);
+             
   
-  var spau = new TextView(ctx);
-		spau.setText("Spam");
-		spau.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		spau.setTextSize(16);
-		spau.setGravity(Gravity.CENTER);
-  lset1.addView(spau);
-  
-  
-  
-  var spam2 = new CheckBox(ctx);
-  spam2.setText("bypass");
-  spam2.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  spam2.setChecked(spamb);
-  spam2.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!spamb){
-      spamb = true;
-      }else{
-      spamb = false;
-      }
-      spam2.setChecked(spamb);
-      }
-      }));
-      lset1.addView(spam2);
-      
-      var sptp = new TextView(ctx);
-		sptp.setText(stripe);
-		sptp.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		sptp.setTextSize(16);
-		sptp.setGravity(Gravity.CENTER);
-  lset1.addView(sptp);
-  
-  var spau = new TextView(ctx);
-		spau.setText("Teleport");
-		spau.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-		spau.setTextSize(16);
-		spau.setGravity(Gravity.CENTER);
-  lset1.addView(spau);
-  
-  
-  
-  var tp2 = new CheckBox(ctx);
-  tp2.setText("EntityDirect");
-  tp2.setTextColor(android.graphics.Color.rgb(255, 255, 255));
-  tp2.setChecked(playerport);
-  tp2.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener({
-      onCheckedChanged: function(){
-      if(!playerport){
-      playerport = true;
-      ported2 = true;
-      }else{
-      playerport = false;
-      }
-      tp2.setChecked(playerport);
-      }
-      }));
-      lset1.addView(tp2);
 
 setep = new PopupWindow(lset2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.getWindowManager().getDefaultDisplay().getHeight());
 			setep.showAtLocation(ctx.getWindow().getDecorView(), Gravity.RIGHT | Gravity.CENTER, 0, 0);
@@ -1994,7 +1813,7 @@ setep = new PopupWindow(lset2, RelativeLayout.LayoutParams.WRAP_CONTENT, ctx.get
 			}
 	}}));
 }
-
+var playerFlySpeed = 0.4;
 function jetpackTick() { 
 toDirectionalVector(playerDir, (getYaw() + 90) * DEG_TO_RAD, getPitch() * DEG_TO_RAD * -1); 
 var player = getPlayerEnt(); 
@@ -2096,6 +1915,711 @@ logmen = new PopupWindow(log2, RelativeLayout.LayoutParams.WRAP_CONTENT, Relativ
 	}}));
 }
 
+
+function diSeSo() {
+if(Scrollsetw != null) {
+Scrollsetw = null;
+setts.dismiss();
+					
+}
+
+if(Scrollsetje != null) {
+settje.dismiss();
+Scrollsetje = null;
+}
+
+if(Scrollsetai != null) {
+setta.dismiss();
+					Scrollsetai = null;
+}
+if(Scrollsetspeed != null) {
+settspe.dismiss();
+					Scrollsetspeed = null;
+}
+
+if(Scrollsettele != null) {
+settspe.dismiss();
+					Scrollsettele = null;
+}
+
+if(Scrollsetcol != null) {
+settsco.dismiss();
+Scrollsetcol = null;
+}
+}
+
+
+function colSet() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var settcol1 = new LinearLayout(ctx);
+	settcol1.setOrientation(1);
+	Scrollsetcol = new ScrollView(ctx);
+	
+	var settcol2 = new LinearLayout(ctx);
+	settcol2.setOrientation(1);
+	
+	Scrollsetcol.addView(settcol1);
+	settcol2.addView(Scrollsetcol);
+	settcol2.setBackground(bg);
+	settcol2.getBackground().setAlpha(100);
+
+
+			var ex = new Button(ctx);
+			ex.setText("Exit");
+			ex.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ex.setPadding(25, 2, 2, 2);
+			ex.setBackground(bg2);
+			ex.getBackground().setAlpha(100);
+			ex.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					settsco.dismiss();
+					Scrollsetcol = null;
+					}
+			}));
+			settcol1.addView(ex);
+			
+			
+			var green = new Button(ctx);
+			green.setText("Green");
+			green.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			green.setPadding(25, 2, 2, 2);
+			
+		  green.setBackground(bg2);
+		  
+			green.getBackground().setAlpha(100);
+			green.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+				
+					bg3.setColor(android.graphics.Color.GREEN);
+					clearCli();
+					}
+			}));
+			settcol1.addView(green);
+			
+			
+			var blue = new Button(ctx);
+			blue.setText("Blue");
+			blue.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			blue.setPadding(25, 2, 2, 2);
+			
+		  blue.setBackground(bg2);
+		  
+			blue.getBackground().setAlpha(100);
+			blue.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					bg3.setColor(android.graphics.Color.BLUE);
+					clearCli();
+					}
+			}));
+			settcol1.addView(blue);
+			
+			
+			
+			var red = new Button(ctx);
+			red.setText("Red");
+			red.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			red.setPadding(25, 2, 2, 2);
+			
+		  red.setBackground(bg2);
+		  
+			red.getBackground().setAlpha(100);
+			red.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					bg3.setColor(android.graphics.Color.RED);
+					clearCli();
+					}
+			}));
+			settcol1.addView(red);
+			
+			
+			var yel = new Button(ctx);
+			yel.setText("Yellow");
+			yel.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			yel.setPadding(25, 2, 2, 2);
+			
+		  yel.setBackground(bg2);
+		  
+			yel.getBackground().setAlpha(100);
+			yel.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					bg3.setColor(android.graphics.Color.YELLOW);
+					clearCli();
+					}
+			}));
+			settcol1.addView(yel);
+			
+			
+settsco = new PopupWindow(settcol2, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			settsco.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+
+function telSet() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var settep1 = new LinearLayout(ctx);
+	settep1.setOrientation(1);
+	Scrollsettele = new ScrollView(ctx);
+	
+	var settep2 = new LinearLayout(ctx);
+	settep2.setOrientation(1);
+	
+	Scrollsettele.addView(settep1);
+	settep2.addView(Scrollsettele);
+	settep2.setBackground(bg);
+	settep2.getBackground().setAlpha(100);
+
+
+			var ex = new Button(ctx);
+			ex.setText("Exit");
+			ex.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ex.setPadding(25, 2, 2, 2);
+			ex.setBackground(bg2);
+			ex.getBackground().setAlpha(100);
+			ex.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					settspe.dismiss();
+					Scrollsettele = null;
+					}
+			}));
+			settep1.addView(ex);
+			
+			
+			var edtp = new Button(ctx);
+			edtp.setText("EntityTp");
+			edtp.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			edtp.setPadding(25, 2, 2, 2);
+			if(playerport == false) {
+			edtp.setBackground(bg2);
+			}else {
+		  edtp.setBackground(bg3);
+		  }
+			edtp.getBackground().setAlpha(100);
+			edtp.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(playerport == false) {
+					playerport = true;
+					edtp.setBackground(bg3);
+					}else {
+					playerport = false;
+					edtp.setBackground(bg2);
+					}
+					
+					}
+			}));
+			settep1.addView(edtp);
+			
+			
+			
+
+settspe = new PopupWindow(settep2, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			settspe.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+
+function seSet() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var setes1 = new LinearLayout(ctx);
+	setes1.setOrientation(1);
+	Scrollsetspeed = new ScrollView(ctx);
+	
+	var setes2 = new LinearLayout(ctx);
+	setes2.setOrientation(1);
+	
+	Scrollsetspeed.addView(setes1);
+	setes2.addView(Scrollsetspeed);
+	setes2.setBackground(bg);
+	setes2.getBackground().setAlpha(100);
+
+
+			var ex = new Button(ctx);
+			ex.setText("Exit");
+			ex.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ex.setPadding(25, 2, 2, 2);
+			ex.setBackground(bg2);
+			ex.getBackground().setAlpha(100);
+			ex.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					settspe.dismiss();
+					Scrollsetspeed = null;
+					}
+			}));
+			setes1.addView(ex);
+			
+			var mspe = new Button(ctx);
+			mspe.setText("Motion");
+			mspe.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			mspe.setPadding(25, 2, 2, 2);
+			if(normalsp == false) {
+			mspe.setBackground(bg2);
+		}else {
+		mspe.setBackground(bg3);
+		}	mspe.getBackground().setAlpha(100);
+			mspe.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(normalsp == false) {
+					normalsp = true;
+					mspe.setBackground(bg3);
+					}else {
+					normalsp = false;
+					mspe.setBackground(bg2);
+					}
+					
+					}
+			}));
+			setes1.addView(mspe);
+			
+			var ctpe = new Button(ctx);
+			ctpe.setText("Costum");
+			ctpe.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ctpe.setPadding(25, 2, 2, 2);
+			if(ctspeed == false) {
+			ctpe.setBackground(bg2);
+			}else {
+		  ctpe.setBackground(bg3);
+		  }
+			ctpe.getBackground().setAlpha(100);
+			ctpe.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(ctspeed == false) {
+					ctspeed = true;
+					ctpe.setBackground(bg3);
+					}else {
+					ctspeed = false;
+					ctpe.setBackground(bg2);
+					}
+					
+					}
+			}));
+			setes1.addView(ctpe);
+			
+			
+			var jpe = new Button(ctx);
+			jpe.setText("Jump");
+			jpe.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			jpe.setPadding(25, 2, 2, 2);
+			if(jhspe == false) {
+			jpe.setBackground(bg2);
+			}else {
+		  jpe.setBackground(bg3);
+		  }
+			jpe.getBackground().setAlpha(100);
+			jpe.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(jhspe == false) {
+					jhspe = true;
+					jpe.setBackground(bg3);
+					}else {
+					jhspe = false;
+					jpe.setBackground(bg2);
+					}
+					
+					}
+			}));
+			setes1.addView(jpe);
+			
+			
+			
+
+settspe = new PopupWindow(setes2, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			settspe.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+function aiSet() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var seti1 = new LinearLayout(ctx);
+	seti1.setOrientation(1);
+	Scrollsetai = new ScrollView(ctx);
+	
+	var seti2 = new LinearLayout(ctx);
+	seti2.setOrientation(1);
+	
+	Scrollsetai.addView(seti1);
+	seti2.addView(Scrollsetai);
+	seti2.setBackground(bg);
+	seti2.getBackground().setAlpha(100);
+
+
+			var ex = new Button(ctx);
+			ex.setText("Exit");
+			ex.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ex.setPadding(25, 2, 2, 2);
+			ex.setBackground(bg2);
+			ex.getBackground().setAlpha(100);
+			ex.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					setta.dismiss();
+					Scrollsetai = null;
+					}
+			}));
+			seti1.addView(ex);
+			
+			var ami = new Button(ctx);
+			ami.setText("Mob");
+			ami.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ami.setPadding(25, 2, 2, 2);
+			if(mobaimed == false) {
+			ami.setBackground(bg2);
+		  }else {
+		  ami.setBackground(bg3);
+		  }	ami.getBackground().setAlpha(100);
+			ami.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(mobaimed == false) {
+					mobaimed = true;
+					ami.setBackground(bg3);
+					}else {
+					mobaimed = false;
+					ami.setBackground(bg2);
+					}
+					
+					}
+			}));
+			seti1.addView(ami);
+			
+			var plai = new Button(ctx);
+			plai.setText("Player");
+			plai.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			plai.setPadding(25, 2, 2, 2);
+			if(playaimed == false) {
+			plai.setBackground(bg2);
+			}else {
+			plai.setBackground(bg3);
+			}
+			plai.getBackground().setAlpha(100);
+			plai.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(playaimed == false) {
+					playaimed = true;
+					plai.setBackground(bg3);
+					}else {
+					playaimed = false;
+					plai.setBackground(bg2);
+					}
+					
+					}
+			}));
+			seti1.addView(plai);
+			
+			
+			var noai = new Button(ctx);
+			noai.setText("Normal");
+			noai.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			noai.setPadding(25, 2, 2, 2);
+			if(naim == false) {
+			noai.setBackground(bg2);
+			}else {
+			noai.setBackground(bg3);
+			}
+			noai.getBackground().setAlpha(100);
+			noai.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(naim == false) {
+					naim = true;
+					noai.setBackground(bg3);
+					}else {
+					naim = false;
+					noai.setBackground(bg2);
+					}
+					
+					}
+			}));
+			seti1.addView(noai);
+   
+   
+   var reai = new Button(ctx);
+			reai.setText("Reaction");
+			reai.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			reai.setPadding(25, 2, 2, 2);
+			if(raim == false) {
+			reai.setBackground(bg2);
+			}else {
+			reai.setBackground(bg3);
+			}
+			reai.getBackground().setAlpha(100);
+			reai.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(raim == false) {
+					raim = true;
+					reai.setBackground(bg3);
+					}else {
+					raim = false;
+					reai.setBackground(bg2);
+					}
+					
+					}
+			}));
+			seti1.addView(reai);
+			
+			
+		/*	var atai = new Button(ctx);
+			atai.setText("AntiBot");
+			atai.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			atai.setPadding(25, 2, 2, 2);
+			if(antibot == false) {
+			atai.setBackground(bg2);
+			}else {
+			atai.setBackground(bg3);
+			}
+			atai.getBackground().setAlpha(100);
+			atai.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(antibot == false) {
+					antibot = true;
+					atai.setBackground(bg3);
+					}else {
+					antibot = false;
+					atai.setBackground(bg2);
+					}
+					
+					}
+			}));
+			seti1.addView(atai);*/
+   
+   
+
+setta = new PopupWindow(seti2, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			setta.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+function jeSet() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var setj1 = new LinearLayout(ctx);
+	setj1.setOrientation(1);
+	Scrollsetje = new ScrollView(ctx);
+	
+	var setj2 = new LinearLayout(ctx);
+	setj2.setOrientation(1);
+	
+	Scrollsetje.addView(setj1);
+	setj2.addView(Scrollsetje);
+	setj2.setBackground(bg);
+	setj2.getBackground().setAlpha(100);
+
+
+			var ex = new Button(ctx);
+			ex.setText("Exit");
+			ex.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ex.setPadding(25, 2, 2, 2);
+			ex.setBackground(bg2);
+			ex.getBackground().setAlpha(100);
+			ex.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					settje.dismiss();
+					Scrollsetje = null;
+					}
+			}));
+			setj1.addView(ex);
+			
+			var jen = new Button(ctx);
+			jen.setText("Normal");
+			jen.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			jen.setPadding(25, 2, 2, 2);
+			if(jesusn == false) {
+			jen.setBackground(bg2);
+		}else {
+		jen.setBackground(bg3);
+		}	jen.getBackground().setAlpha(100);
+			jen.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(jesusn == false) {
+					jesusn = true;
+					jen.setBackground(bg3);
+					}else {
+					jesusn = false;
+					jen.setBackground(bg2);
+					}
+					
+					}
+			}));
+			setj1.addView(jen);
+			
+			var jeh = new Button(ctx);
+			jeh.setText("Hop");
+			jeh.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			jeh.setPadding(25, 2, 2, 2);
+			if(jesush == false) {
+			jeh.setBackground(bg2);
+			}else {
+		  jeh.setBackground(bg3);
+		  }
+			jeh.getBackground().setAlpha(100);
+			jeh.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(jesush == false) {
+					jesush = true;
+					jeh.setBackground(bg3);
+					}else {
+					jesush = false;
+					jeh.setBackground(bg2);
+					}
+					
+					}
+			}));
+			setj1.addView(jeh);
+			
+			
+			var jes = new Button(ctx);
+			jes.setText("Speed");
+			jes.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			jes.setPadding(25, 2, 2, 2);
+			if(jesuss == false) {
+			jes.setBackground(bg2);
+		}else {
+		jes.setBackground(bg3);
+		}	jes.getBackground().setAlpha(100);
+			jes.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(jesuss == false) {
+					jesuss = true;
+					jes.setBackground(bg3);
+					}else {
+					jesuss = false;
+					jes.setBackground(bg2);
+					}
+					
+					}
+			}));
+			setj1.addView(jes);
+   
+
+settje = new PopupWindow(setj2, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			settje.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+
+
+function twSet() {
+ctx.runOnUiThread(new Runnable({ run: function(){
+		try{
+		
+		
+	var set1 = new LinearLayout(ctx);
+	set1.setOrientation(1);
+	Scrollsetw = new ScrollView(ctx);
+	
+	var set2 = new LinearLayout(ctx);
+	set2.setOrientation(1);
+	
+	Scrollsetw.addView(set1);
+	set2.addView(Scrollsetw);
+	set2.setBackground(bg);
+	set2.getBackground().setAlpha(100);
+
+
+			var ex = new Button(ctx);
+			ex.setText("Exit");
+			ex.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			ex.setPadding(25, 2, 2, 2);
+			ex.setBackground(bg2);
+			ex.getBackground().setAlpha(100);
+			ex.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					setts.dismiss();
+					Scrollsetw = null;
+					}
+			}));
+			set1.addView(ex);
+			
+			var jpt = new Button(ctx);
+			jpt.setText("Jump");
+			jpt.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			jpt.setPadding(25, 2, 2, 2);
+			if(jumptower == false) {
+			jpt.setBackground(bg2);
+			}else {
+			jpt.setBackground(bg3);
+			}
+			jpt.getBackground().setAlpha(100);
+			jpt.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(jumptower == false) {
+					jumptower = true;
+					jpt.setBackground(bg3);
+					}else {
+					jumptower = false;
+					jpt.setBackground(bg2);
+					}
+					
+					}
+			}));
+			set1.addView(jpt);
+			
+			
+			var exp = new Button(ctx);
+			exp.setText("Experimental");
+			exp.setTextColor(android.graphics.Color.rgb(255, 255, 255));
+			exp.setPadding(25, 2, 2, 2);
+			if(exptower == false) {
+			exp.setBackground(bg2);
+			}else {
+			exp.setBackground(bg3);
+			}
+			exp.getBackground().setAlpha(100);
+			exp.setOnClickListener(new View.OnClickListener({
+				onClick: function(viewarg){
+					if(exptower == false) {
+					exptower = true;
+					exp.setBackground(bg3);
+					}else {
+					exptower = false;
+					exp.setBackground(bg2);
+					}
+					
+					}
+			}));
+			set1.addView(exp);
+   
+
+setts = new PopupWindow(set2, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			setts.showAtLocation(ctx.getWindow().getDecorView(), Gravity.CENTER | Gravity.CENTER, 0, 0);
+
+	}catch(error){
+				Toast.makeText(ctx, "An error occured: " + error, 1).show();
+			}
+	}}));
+}
+
+
 function modTick()
 {
 
@@ -2122,14 +2646,10 @@ var checkserver = Server.getAddress();
 var tser = checkserver.split(".");
 if(passw == true) {
 if(passcheck == false) {
-if(PasManager.getPas() != null) {
 logiGui();
 this.server = Server.getAddress();
 
 passcheck = true;
-}else {
-ModPE.showTipMessage("please first set your standart pw with: .setPas <pw>");
-}
 }
 }
 if(passcheck == true) {
@@ -2143,7 +2663,8 @@ if(spamtime != 0) {
 spamtime--;
 }else {
 spamtime = spamspeed;
-if(spamb == true) {
+var spami = spammes.split("");
+if(spami[0] != "/") {
 Server.sendChat(state+"*"+spammes+"*"+state);
 }else {
 Server.sendChat(spammes);
@@ -2188,6 +2709,13 @@ setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*motionct);
 jumpct1 = true;
 ModPE.setGameSpeed(timerct);
  }
+if(nofall == true){
+if(getTile(getPlayerX(), getPlayerY()-2, getPlayerZ()) == 0 && getTile(getPlayerX(), getPlayerY()-3, getPlayerZ()) == 0 && !Utils.Player.onGround() && Utils.Player.isFalling()) {
+var y = Utils.Player.checkHeigth();
+/*clientMessage("x:"+getPlayerX()+"y:"+getPlayerY()+"z:"+getPlayerZ());*/
+setPosition(getPlayerEnt(), getPlayerX(), y, getPlayerZ());
+/*clientMessage("x:"+getPlayerX()+"y:"+getPlayerY()+"z:"+getPlayerZ());*/
+}}
 if(sped == true && ctspeed == true && groundct == true){
 if(Utils.Player.onGround())
 setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*motionct);
@@ -2200,11 +2728,13 @@ if(multijump){
 if(Utils.Player.overGround())
 setVelY(getPlayerEnt(), 0.6);
  }
+var yaw = Entity.getYaw(getPlayerEnt());
 if(longjump){
-if(getTile(getPlayerX(), getPlayerY() - 2, getPlayerZ()) == 0){
-setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*jumpboost);
-setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*jumpboost);
- }}
+if(Entity.getVelY(getPlayerEnt()) > 0.32){
+setVelX(getPlayerEnt(), -jumpboost * Math.sin(yaw / 180 * Math.PI));
+if(Entity.getVelY(getPlayerEnt()) > 0.32){
+setVelZ(getPlayerEnt(), jumpboost * Math.cos(yaw / 180 * Math.PI));
+ }}}
 if(safewalk == true){
 Entity.setSneaking(getPlayerEnt(), true);
  }
@@ -2248,6 +2778,23 @@ setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*smotion);
 if(Utils.Player.onGround())
 setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*smotion);
  }
+if(jhspe && sped) {
+var speed = Utils.Vel.calculateSpeed();
+if(speed != 0) {
+if(Utils.Player.onGround()) {
+Entity.setVelY(getPlayerEnt(), 0.3);
+Entity.setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*0.6);
+Entity.setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*0.6);
+}
+if(!Utils.Player.onGround()) {
+if(getTile(getPlayerX(), getPlayerY()-3, getPlayerZ()) != 0) {
+Entity.setVelX(getPlayerEnt(), Entity.getVelX(getPlayerEnt())*1.2);
+Entity.setVelZ(getPlayerEnt(), Entity.getVelZ(getPlayerEnt())*1.2);
+}
+}
+}
+
+}
  
  if(nock == true) {
  this.tick = 0;
@@ -2312,7 +2859,7 @@ break;
 }
 
 
-if(jesus == true && Entity.isSneaking(getPlayerEnt())) {
+if(jesus == true && !Entity.isSneaking(getPlayerEnt())) {
  if(getTile(getPlayerX(), getPlayerY() - 2, getPlayerZ()) == 8 || getTile(getPlayerX() ,getPlayerY() - 2, getPlayerZ()) == 9 || getTile(getPlayerX() ,getPlayerY() - 2, getPlayerZ()) == 10) {
   if(jesusn == true) {
   setVelY(getPlayerEnt(), -0.000000001);
@@ -2342,7 +2889,7 @@ time--;
 }
 if(time == 0) {
 time = 8;
-setPosition(getPlayerEnt(), getPlayerX(), getPlayerY() + 1.5, getPlayerZ())
+setPosition(getPlayerEnt(), getPlayerX(), getPlayerY() + 0.5, getPlayerZ())
 setTile(Player.getX(), Player.getY() - 3, Player.getZ(), 24)
  }}
  /*var target2 = Utils.Entity.nextShot();
@@ -2384,9 +2931,9 @@ if(baimed == true) {
 
 
 if(target != null){
-if(Utils.Entity.isGround(target))
+if(Utils.Entity.isGround(target)) {
 Utils.Entity.aimAtEnt(target);
-}}
+}}}
 
 if(raim == true) {
 if(!Utils.Entity.calculateDist(target, 8)) {
